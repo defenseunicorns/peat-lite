@@ -215,9 +215,9 @@ mod tests {
     #[test]
     fn test_position_encode_decode() {
         let pos = Position {
-            lat_microdeg: 37_774_929,  // ~37.774929° (San Francisco)
+            lat_microdeg: 37_774_929,   // ~37.774929° (San Francisco)
             lon_microdeg: -122_419_416, // ~-122.419416°
-            alt_cm: 1000,              // 10m
+            alt_cm: 1000,               // 10m
         };
 
         let encoded = pos.encode();
