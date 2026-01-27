@@ -1,6 +1,6 @@
 [package]
 name = "hive-lite"
-version = "0.0.1"
+version = "0.0.3"
 edition = "2021"
 authors = ["(r)evolve - Revolve Team LLC"]
 license = "Apache-2.0"
@@ -12,6 +12,8 @@ categories = ["no-std", "data-structures", "embedded"]
 readme = "README.md"
 
 [lib]
+# rlib for Rust consumers (default)
+# cdylib added via android feature for native library
 crate-type = ["rlib"]
 
 [features]
