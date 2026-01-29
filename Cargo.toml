@@ -1,6 +1,6 @@
 [package]
 name = "hive-lite"
-version = "0.0.3"
+version = "0.0.4"
 edition = "2021"
 authors = ["(r)evolve - Revolve Team LLC"]
 license = "Apache-2.0"
