@@ -13,6 +13,19 @@ use crate::canned::MAX_CANNED_ACKS;
 /// This allows receivers to distinguish canned messages from other data.
 pub const CANNED_MESSAGE_MARKER: u8 = 0xAF;
 
+/// Size of an Ed25519 signature in bytes.
+pub const SIGNATURE_SIZE: usize = 64;
+
+/// Size of unsigned CannedMessageEvent wire format.
+///
+/// Format: `[marker:1][msg_code:1][src:4][tgt:4][timestamp:8][seq:4] = 22 bytes`
+pub const CANNED_MESSAGE_UNSIGNED_SIZE: usize = 22;
+
+/// Size of signed CannedMessageEvent wire format.
+///
+/// Format: `[marker:1][msg_code:1][src:4][tgt:4][timestamp:8][seq:4][signature:64] = 86 bytes`
+pub const CANNED_MESSAGE_SIGNED_SIZE: usize = CANNED_MESSAGE_UNSIGNED_SIZE + SIGNATURE_SIZE;
+
 /// Maximum encoded size for [`CannedMessageAckEvent`](crate::CannedMessageAckEvent).
 ///
 /// 24 bytes base + (12 bytes per ACK entry × MAX_CANNED_ACKS).
@@ -31,6 +44,8 @@ pub enum WireError {
     ChecksumMismatch,
     /// Buffer capacity exceeded.
     BufferFull,
+    /// Invalid or missing signature.
+    InvalidSignature,
 }
 
 #[cfg(feature = "std")]
@@ -42,6 +57,7 @@ impl std::fmt::Display for WireError {
             Self::UnknownCode => write!(f, "unknown message code"),
             Self::ChecksumMismatch => write!(f, "checksum mismatch"),
             Self::BufferFull => write!(f, "buffer capacity exceeded"),
+            Self::InvalidSignature => write!(f, "invalid or missing signature"),
         }
     }
 }
