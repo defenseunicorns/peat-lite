@@ -73,4 +73,7 @@ pub use canned::{
 pub use counter::GCounter;
 pub use lww::LwwRegister;
 pub use node_id::NodeId;
-pub use wire::{WireError, CANNED_ACK_EVENT_MAX_SIZE, CANNED_MESSAGE_MARKER};
+pub use wire::{
+    WireError, CANNED_ACK_EVENT_MAX_SIZE, CANNED_MESSAGE_MARKER, CANNED_MESSAGE_SIGNED_SIZE,
+    CANNED_MESSAGE_UNSIGNED_SIZE, SIGNATURE_SIZE,
+};

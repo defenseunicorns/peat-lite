@@ -7,7 +7,9 @@
 //! without keyboard input (e.g., WearTAK on Samsung watches).
 
 use crate::node_id::NodeId;
-use crate::wire::CANNED_MESSAGE_MARKER;
+use crate::wire::{
+    CANNED_MESSAGE_MARKER, CANNED_MESSAGE_SIGNED_SIZE, CANNED_MESSAGE_UNSIGNED_SIZE, SIGNATURE_SIZE,
+};
 use heapless::FnvIndexMap;
 
 /// Maximum ACK entries per CannedMessageAckEvent (memory bound for embedded).
@@ -304,6 +306,109 @@ impl CannedMessageEvent {
     pub fn is_newer_than(&self, other: &Self) -> bool {
         self.timestamp > other.timestamp
             || (self.timestamp == other.timestamp && self.sequence > other.sequence)
+    }
+
+    /// Encode to signed wire format with Ed25519 signature.
+    ///
+    /// Format:
+    /// ```text
+    /// ┌──────┬──────────┬──────────┬──────────┬───────────┬──────┬───────────┐
+    /// │ 0xAF │ msg_code │ src_node │ tgt_node │ timestamp │ seq  │ signature │
+    /// │ 1B   │ 1B       │ 4B       │ 4B       │ 8B        │ 4B   │ 64B       │
+    /// └──────┴──────────┴──────────┴──────────┴───────────┴──────┴───────────┘
+    /// ```
+    ///
+    /// The signature should cover the first 22 bytes (marker through seq).
+    /// Caller is responsible for computing the signature using their identity.
+    ///
+    /// # Arguments
+    /// * `signature` - Ed25519 signature over the unsigned payload (22 bytes)
+    pub fn encode_signed(&self, signature: &[u8; SIGNATURE_SIZE]) -> heapless::Vec<u8, 86> {
+        let mut buf = heapless::Vec::new();
+
+        // Encode unsigned portion (22 bytes)
+        let unsigned = self.encode();
+        for b in unsigned.iter() {
+            let _ = buf.push(*b);
+        }
+
+        // Append signature (64 bytes)
+        for b in signature.iter() {
+            let _ = buf.push(*b);
+        }
+
+        buf
+    }
+
+    /// Decode from signed wire format.
+    ///
+    /// Returns the event and signature if the data is exactly 86 bytes
+    /// and has a valid marker.
+    ///
+    /// **Note:** This does NOT verify the signature. Caller must verify
+    /// using the sender's public key from the identity registry.
+    ///
+    /// # Returns
+    /// `Some((event, signature))` if valid signed format, `None` otherwise.
+    pub fn decode_signed(data: &[u8]) -> Option<(Self, [u8; SIGNATURE_SIZE])> {
+        if data.len() != CANNED_MESSAGE_SIGNED_SIZE {
+            return None;
+        }
+
+        // Decode the unsigned portion
+        let event = Self::decode(&data[..CANNED_MESSAGE_UNSIGNED_SIZE])?;
+
+        // Extract signature
+        let mut signature = [0u8; SIGNATURE_SIZE];
+        signature.copy_from_slice(&data[CANNED_MESSAGE_UNSIGNED_SIZE..]);
+
+        Some((event, signature))
+    }
+
+    /// Get the payload bytes that should be signed.
+    ///
+    /// Returns the 22-byte unsigned wire format suitable for signing.
+    /// Use this with your identity's sign() method:
+    ///
+    /// ```ignore
+    /// let payload = event.signable_payload();
+    /// let signature = identity.sign(&payload);
+    /// let wire = event.encode_signed(&signature);
+    /// ```
+    #[inline]
+    pub fn signable_payload(&self) -> heapless::Vec<u8, 22> {
+        self.encode()
+    }
+
+    /// Check if wire data is in signed format (86 bytes) vs unsigned (22 bytes).
+    ///
+    /// Useful for protocol negotiation and backward compatibility.
+    #[inline]
+    pub fn is_signed_format(data: &[u8]) -> bool {
+        data.len() == CANNED_MESSAGE_SIGNED_SIZE && data.first() == Some(&CANNED_MESSAGE_MARKER)
+    }
+
+    /// Check if wire data is in unsigned format (22 bytes).
+    #[inline]
+    pub fn is_unsigned_format(data: &[u8]) -> bool {
+        data.len() == CANNED_MESSAGE_UNSIGNED_SIZE && data.first() == Some(&CANNED_MESSAGE_MARKER)
+    }
+
+    /// Decode from either signed or unsigned format.
+    ///
+    /// Returns `(event, Some(signature))` for signed format,
+    /// or `(event, None)` for unsigned format.
+    ///
+    /// # Returns
+    /// `Some((event, optional_signature))` if valid format, `None` if malformed.
+    pub fn decode_auto(data: &[u8]) -> Option<(Self, Option<[u8; SIGNATURE_SIZE]>)> {
+        if Self::is_signed_format(data) {
+            Self::decode_signed(data).map(|(e, s)| (e, Some(s)))
+        } else if Self::is_unsigned_format(data) {
+            Self::decode(data).map(|e| (e, None))
+        } else {
+            None
+        }
     }
 }
 
@@ -1119,5 +1224,132 @@ mod tests {
         assert!(nodes.contains(&source));
         assert!(nodes.contains(&NodeId::new(0x222)));
         assert!(nodes.contains(&NodeId::new(0x333)));
+    }
+
+    // ===== Signed CannedMessageEvent tests =====
+
+    #[test]
+    fn test_signed_event_encode_decode() {
+        let event = CannedMessageEvent::with_sequence(
+            CannedMessage::Emergency,
+            NodeId::new(0x12345678),
+            Some(NodeId::new(0xDEADBEEF)),
+            1706234567000,
+            42,
+        );
+
+        // Create a dummy signature (in real use, this comes from identity.sign())
+        let signature = [0xABu8; 64];
+
+        let encoded = event.encode_signed(&signature);
+        assert_eq!(encoded.len(), 86);
+        assert_eq!(encoded[0], CANNED_MESSAGE_MARKER);
+
+        let (decoded, decoded_sig) = CannedMessageEvent::decode_signed(&encoded).unwrap();
+        assert_eq!(decoded.message, event.message);
+        assert_eq!(decoded.source_node, event.source_node);
+        assert_eq!(decoded.target_node, event.target_node);
+        assert_eq!(decoded.timestamp, event.timestamp);
+        assert_eq!(decoded.sequence, event.sequence);
+        assert_eq!(decoded_sig, signature);
+    }
+
+    #[test]
+    fn test_signed_format_detection() {
+        let event = CannedMessageEvent::new(
+            CannedMessage::CheckIn,
+            NodeId::new(0x12345678),
+            None,
+            1706234567000,
+        );
+
+        // Unsigned format (22 bytes)
+        let unsigned = event.encode();
+        assert!(CannedMessageEvent::is_unsigned_format(&unsigned));
+        assert!(!CannedMessageEvent::is_signed_format(&unsigned));
+
+        // Signed format (86 bytes)
+        let signature = [0x00u8; 64];
+        let signed = event.encode_signed(&signature);
+        assert!(CannedMessageEvent::is_signed_format(&signed));
+        assert!(!CannedMessageEvent::is_unsigned_format(&signed));
+
+        // Invalid formats
+        assert!(!CannedMessageEvent::is_signed_format(&[0xAF; 50]));
+        assert!(!CannedMessageEvent::is_unsigned_format(&[0xAF; 50]));
+        assert!(!CannedMessageEvent::is_signed_format(&[0x00; 86])); // Wrong marker
+    }
+
+    #[test]
+    fn test_decode_auto() {
+        let event = CannedMessageEvent::with_sequence(
+            CannedMessage::Alert,
+            NodeId::new(0xAAAA),
+            None,
+            1000,
+            5,
+        );
+
+        // Test unsigned
+        let unsigned = event.encode();
+        let (decoded, sig_opt) = CannedMessageEvent::decode_auto(&unsigned).unwrap();
+        assert_eq!(decoded.message, event.message);
+        assert!(sig_opt.is_none());
+
+        // Test signed
+        let signature = [0xFFu8; 64];
+        let signed = event.encode_signed(&signature);
+        let (decoded, sig_opt) = CannedMessageEvent::decode_auto(&signed).unwrap();
+        assert_eq!(decoded.message, event.message);
+        assert_eq!(sig_opt, Some(signature));
+
+        // Test invalid
+        assert!(CannedMessageEvent::decode_auto(&[0xAF; 50]).is_none());
+    }
+
+    #[test]
+    fn test_signable_payload() {
+        let event = CannedMessageEvent::new(
+            CannedMessage::Moving,
+            NodeId::new(0x12345678),
+            None,
+            1706234567000,
+        );
+
+        let payload = event.signable_payload();
+        let encoded = event.encode();
+
+        // Should be identical to unsigned encode
+        assert_eq!(payload.as_slice(), encoded.as_slice());
+        assert_eq!(payload.len(), 22);
+    }
+
+    #[test]
+    fn test_signed_decode_wrong_size() {
+        // Too short
+        assert!(CannedMessageEvent::decode_signed(&[0xAF; 85]).is_none());
+
+        // Too long
+        assert!(CannedMessageEvent::decode_signed(&[0xAF; 87]).is_none());
+
+        // Wrong marker
+        let mut bad = [0u8; 86];
+        bad[0] = 0x00;
+        assert!(CannedMessageEvent::decode_signed(&bad).is_none());
+    }
+
+    #[test]
+    fn test_wire_size_constants() {
+        use crate::wire::{
+            CANNED_MESSAGE_SIGNED_SIZE, CANNED_MESSAGE_UNSIGNED_SIZE, SIGNATURE_SIZE,
+        };
+
+        assert_eq!(CANNED_MESSAGE_UNSIGNED_SIZE, 22);
+        assert_eq!(SIGNATURE_SIZE, 64);
+        assert_eq!(CANNED_MESSAGE_SIGNED_SIZE, 86);
+        assert_eq!(
+            CANNED_MESSAGE_SIGNED_SIZE,
+            CANNED_MESSAGE_UNSIGNED_SIZE + SIGNATURE_SIZE
+        );
     }
 }
