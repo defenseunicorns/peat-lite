@@ -5,11 +5,18 @@
 //!
 //! Defines markers and error handling for over-the-air message encoding.
 
+use crate::canned::MAX_CANNED_ACKS;
+
 /// Marker byte for canned message events on the wire.
 ///
 /// Format: `0xAF` followed by message payload.
 /// This allows receivers to distinguish canned messages from other data.
 pub const CANNED_MESSAGE_MARKER: u8 = 0xAF;
+
+/// Maximum encoded size for [`CannedMessageAckEvent`](crate::CannedMessageAckEvent).
+///
+/// 24 bytes base + (12 bytes per ACK entry × MAX_CANNED_ACKS).
+pub const CANNED_ACK_EVENT_MAX_SIZE: usize = 24 + MAX_CANNED_ACKS * 12;
 
 /// Wire format error types.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
