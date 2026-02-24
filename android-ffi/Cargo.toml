@@ -1,0 +1,23 @@
+[package]
+name = "hive-lite-android"
+version = "0.0.3"
+edition = "2021"
+authors = ["(r)evolve - Revolve Team LLC"]
+license = "Apache-2.0"
+description = "Android/Kotlin bindings for hive-lite via UniFFI"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+name = "hive_lite_android"
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "src/uniffi-bindgen.rs"
+
+[dependencies]
+hive-lite = { path = "..", features = ["std"] }
+uniffi = { version = "0.28", features = ["cli"] }
+
+[build-dependencies]
+uniffi = { version = "0.28", features = ["build"] }

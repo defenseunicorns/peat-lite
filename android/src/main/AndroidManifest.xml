@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2025-2026 (r)evolve - Revolve Team LLC -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- No permissions needed - this is a pure utility library -->
+</manifest>
