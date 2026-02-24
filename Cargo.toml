@@ -1,3 +1,12 @@
+[workspace]
+resolver = "2"
+members = [
+    ".",
+    "hive-lite-protocol",
+]
+# Firmware requires ESP32 toolchain — build separately
+exclude = ["firmware", "android/", "android-ffi/"]
+
 [package]
 name = "hive-lite"
 version = "0.0.4"
@@ -10,7 +19,7 @@ homepage = "https://app.radicle.xyz/nodes/seed.toph.so/rad:z4Bhrn1aB8T5vp6Vg42xx
 keywords = ["crdt", "embedded", "mesh", "hive", "tactical"]
 categories = ["no-std", "data-structures", "embedded"]
 readme = "README.md"
-exclude = ["android/", "android-ffi/", "Makefile"]
+exclude = ["android/", "android-ffi/", "firmware/", "Makefile"]
 
 [lib]
 # rlib for Rust consumers (default)
