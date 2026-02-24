@@ -27,6 +27,7 @@
 //! ## Features
 //!
 //! - **`std`** (default): Enables standard library support
+//! - **`android`**: Enables UniFFI bindings for Android/Kotlin
 //! - Disable default features for `no_std`: `--no-default-features`
 //!
 //! ## Primitives
@@ -66,8 +67,10 @@ pub mod node_id;
 pub mod wire;
 
 // Re-export main types at crate root
-pub use canned::{CannedMessage, CannedMessageEvent, CannedMessageStore};
+pub use canned::{
+    CannedMessage, CannedMessageAckEvent, CannedMessageEvent, CannedMessageStore, MAX_CANNED_ACKS,
+};
 pub use counter::GCounter;
 pub use lww::LwwRegister;
 pub use node_id::NodeId;
-pub use wire::{WireError, CANNED_MESSAGE_MARKER};
+pub use wire::{WireError, CANNED_ACK_EVENT_MAX_SIZE, CANNED_MESSAGE_MARKER};

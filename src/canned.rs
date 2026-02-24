@@ -10,6 +10,9 @@ use crate::node_id::NodeId;
 use crate::wire::CANNED_MESSAGE_MARKER;
 use heapless::FnvIndexMap;
 
+/// Maximum ACK entries per CannedMessageAckEvent (memory bound for embedded).
+pub const MAX_CANNED_ACKS: usize = 64;
+
 /// Predefined message codes for resource-constrained devices.
 ///
 /// Designed for button-based interaction (no keyboard input).
@@ -304,6 +307,339 @@ impl CannedMessageEvent {
     }
 }
 
+/// A CannedMessage event with distributed ACK tracking (CRDT).
+///
+/// This extends [`CannedMessageEvent`] with a map of acknowledgments from other nodes.
+/// The ACK map uses OR-set semantics: once a node has acknowledged, it stays acknowledged.
+///
+/// # CRDT Merge Semantics
+///
+/// When merging two `CannedMessageAckEvent` instances:
+/// - If they represent the same event (same source + timestamp): merge ACK maps with OR semantics
+/// - If they represent different events: higher timestamp wins (LWW)
+///
+/// # Wire Format
+///
+/// ```text
+/// ┌──────┬──────────┬──────────┬──────────┬───────────┬──────┬──────────┬───────────────┐
+/// │ 0xAF │ msg_code │ src_node │ tgt_node │ timestamp │ seq  │ num_acks │ acks[N]...    │
+/// │ 1B   │ 1B       │ 4B       │ 4B       │ 8B        │ 4B   │ 2B       │ 12B each      │
+/// └──────┴──────────┴──────────┴──────────┴───────────┴──────┴──────────┴───────────────┘
+/// ```
+///
+/// Each ACK entry is 12 bytes: acker_node_id (4B LE) + ack_timestamp (8B LE).
+#[derive(Debug, Clone)]
+pub struct CannedMessageAckEvent {
+    /// The message type
+    pub message: CannedMessage,
+    /// Source node that sent this message
+    pub source_node: NodeId,
+    /// Target node (if directed, e.g., ACK to specific node)
+    pub target_node: Option<NodeId>,
+    /// Timestamp when message was sent
+    pub timestamp: u64,
+    /// Sequence number for deduplication
+    pub sequence: u32,
+    /// ACK tracking: acker_node_id -> ack_timestamp
+    acks: FnvIndexMap<NodeId, u64, MAX_CANNED_ACKS>,
+}
+
+impl CannedMessageAckEvent {
+    /// Create a new event. The source node auto-acknowledges.
+    pub fn new(
+        message: CannedMessage,
+        source_node: NodeId,
+        target_node: Option<NodeId>,
+        timestamp: u64,
+    ) -> Self {
+        let mut acks = FnvIndexMap::new();
+        // Source node implicitly acknowledges their own message
+        let _ = acks.insert(source_node, timestamp);
+
+        Self {
+            message,
+            source_node,
+            target_node,
+            timestamp,
+            sequence: 0,
+            acks,
+        }
+    }
+
+    /// Create with explicit sequence number.
+    pub fn with_sequence(
+        message: CannedMessage,
+        source_node: NodeId,
+        target_node: Option<NodeId>,
+        timestamp: u64,
+        sequence: u32,
+    ) -> Self {
+        let mut event = Self::new(message, source_node, target_node, timestamp);
+        event.sequence = sequence;
+        event
+    }
+
+    /// Record an ACK from a node.
+    ///
+    /// Returns `true` if this is a new ACK or updates an existing one to a later timestamp.
+    /// Returns `false` if the ACK was already recorded with an equal or later timestamp,
+    /// or if the ACK map is full.
+    pub fn ack(&mut self, node_id: NodeId, ack_timestamp: u64) -> bool {
+        if node_id == NodeId::NULL {
+            return false;
+        }
+
+        match self.acks.get(&node_id) {
+            Some(&existing_ts) if existing_ts >= ack_timestamp => false,
+            Some(_) => {
+                // Update existing entry with newer timestamp
+                let _ = self.acks.insert(node_id, ack_timestamp);
+                true
+            }
+            None => {
+                // New ACK entry
+                self.acks.insert(node_id, ack_timestamp).is_ok()
+            }
+        }
+    }
+
+    /// Check if a node has acknowledged this message.
+    pub fn has_acked(&self, node_id: NodeId) -> bool {
+        self.acks.contains_key(&node_id)
+    }
+
+    /// Get all node IDs that have acknowledged this message.
+    pub fn acked_nodes(&self) -> impl Iterator<Item = NodeId> + '_ {
+        self.acks.keys().copied()
+    }
+
+    /// Get the ACK timestamp for a specific node.
+    pub fn ack_timestamp(&self, node_id: NodeId) -> Option<u64> {
+        self.acks.get(&node_id).copied()
+    }
+
+    /// Number of ACKs received (including source's implicit ACK).
+    pub fn ack_count(&self) -> usize {
+        self.acks.len()
+    }
+
+    /// CRDT merge with another event.
+    ///
+    /// - Same event (source + timestamp match): merge ACK maps with OR semantics
+    /// - Different event: higher timestamp wins (LWW)
+    ///
+    /// Returns `true` if this event's state changed.
+    pub fn merge(&mut self, other: &Self) -> bool {
+        // Different message identity - higher timestamp wins
+        if self.source_node != other.source_node || self.timestamp != other.timestamp {
+            if other.timestamp > self.timestamp {
+                *self = other.clone();
+                return true;
+            }
+            return false;
+        }
+
+        // Same message - merge ACK maps with OR, keep latest timestamp per acker
+        let mut changed = false;
+        for (node_id, &other_ts) in other.acks.iter() {
+            match self.acks.get(node_id) {
+                Some(&existing_ts) if existing_ts >= other_ts => {}
+                _ => {
+                    if self.acks.insert(*node_id, other_ts).is_ok() {
+                        changed = true;
+                    }
+                }
+            }
+        }
+        changed
+    }
+
+    /// Encode to wire format.
+    ///
+    /// Returns a buffer containing the base event (22 bytes) plus ACK state.
+    /// Format: 24 base bytes + (12 bytes per ACK entry).
+    pub fn encode(&self) -> heapless::Vec<u8, 792> {
+        let mut buf = heapless::Vec::new();
+
+        // Marker
+        let _ = buf.push(CANNED_MESSAGE_MARKER);
+
+        // Message code
+        let _ = buf.push(self.message.as_u8());
+
+        // Source node (4 bytes LE)
+        for b in self.source_node.to_le_bytes() {
+            let _ = buf.push(b);
+        }
+
+        // Target node (4 bytes LE, 0 if None)
+        let target = self.target_node.unwrap_or(NodeId::NULL);
+        for b in target.to_le_bytes() {
+            let _ = buf.push(b);
+        }
+
+        // Timestamp (8 bytes LE)
+        for b in self.timestamp.to_le_bytes() {
+            let _ = buf.push(b);
+        }
+
+        // Sequence (4 bytes LE)
+        for b in self.sequence.to_le_bytes() {
+            let _ = buf.push(b);
+        }
+
+        // Number of ACKs (2 bytes LE)
+        let num_acks = self.acks.len() as u16;
+        for b in num_acks.to_le_bytes() {
+            let _ = buf.push(b);
+        }
+
+        // ACK entries (12 bytes each: 4B node_id + 8B timestamp)
+        for (node_id, &ack_ts) in self.acks.iter() {
+            for b in node_id.to_le_bytes() {
+                let _ = buf.push(b);
+            }
+            for b in ack_ts.to_le_bytes() {
+                let _ = buf.push(b);
+            }
+        }
+
+        buf
+    }
+
+    /// Decode from wire format.
+    ///
+    /// Handles both base format (22 bytes, no ACKs) and extended format (24+ bytes with ACKs).
+    /// Returns `None` if data is malformed.
+    pub fn decode(data: &[u8]) -> Option<Self> {
+        // Minimum: 22 bytes for base event (backward compat)
+        if data.len() < 22 {
+            return None;
+        }
+
+        if data[0] != CANNED_MESSAGE_MARKER {
+            return None;
+        }
+
+        let message = CannedMessage::from_u8(data[1])?;
+
+        let source_node = NodeId::from_le_bytes([data[2], data[3], data[4], data[5]]);
+
+        // Security check: reject NULL source
+        if source_node == NodeId::NULL {
+            return None;
+        }
+
+        let target_bytes = [data[6], data[7], data[8], data[9]];
+        let target_node = if target_bytes == [0, 0, 0, 0] {
+            None
+        } else {
+            Some(NodeId::from_le_bytes(target_bytes))
+        };
+
+        let timestamp = u64::from_le_bytes([
+            data[10], data[11], data[12], data[13], data[14], data[15], data[16], data[17],
+        ]);
+
+        let sequence = u32::from_le_bytes([data[18], data[19], data[20], data[21]]);
+
+        // Build base ACK map with source's implicit ACK
+        let mut acks = FnvIndexMap::new();
+        let _ = acks.insert(source_node, timestamp);
+
+        // Check for extended format with ACK state
+        if data.len() >= 24 {
+            let num_acks = u16::from_le_bytes([data[22], data[23]]);
+
+            // Security check: reject excessive ACK counts
+            if num_acks as usize > MAX_CANNED_ACKS {
+                return None;
+            }
+
+            let expected_len = 24 + (num_acks as usize * 12);
+            if data.len() < expected_len {
+                return None;
+            }
+
+            // Parse ACK entries
+            let mut offset = 24;
+            for _ in 0..num_acks {
+                let acker_node = NodeId::from_le_bytes([
+                    data[offset],
+                    data[offset + 1],
+                    data[offset + 2],
+                    data[offset + 3],
+                ]);
+                let ack_ts = u64::from_le_bytes([
+                    data[offset + 4],
+                    data[offset + 5],
+                    data[offset + 6],
+                    data[offset + 7],
+                    data[offset + 8],
+                    data[offset + 9],
+                    data[offset + 10],
+                    data[offset + 11],
+                ]);
+                offset += 12;
+
+                // Skip NULL node IDs (invalid entries)
+                if acker_node != NodeId::NULL {
+                    let _ = acks.insert(acker_node, ack_ts);
+                }
+            }
+        }
+
+        Some(Self {
+            message,
+            source_node,
+            target_node,
+            timestamp,
+            sequence,
+            acks,
+        })
+    }
+
+    /// Convert to base [`CannedMessageEvent`] (without ACK state).
+    pub fn as_event(&self) -> CannedMessageEvent {
+        CannedMessageEvent {
+            message: self.message,
+            source_node: self.source_node,
+            target_node: self.target_node,
+            timestamp: self.timestamp,
+            sequence: self.sequence,
+        }
+    }
+
+    /// Create from a base [`CannedMessageEvent`] (no ACKs except source).
+    pub fn from_event(event: CannedMessageEvent) -> Self {
+        let mut acks = FnvIndexMap::new();
+        let _ = acks.insert(event.source_node, event.timestamp);
+
+        Self {
+            message: event.message,
+            source_node: event.source_node,
+            target_node: event.target_node,
+            timestamp: event.timestamp,
+            sequence: event.sequence,
+            acks,
+        }
+    }
+}
+
+impl PartialEq for CannedMessageAckEvent {
+    fn eq(&self, other: &Self) -> bool {
+        self.message == other.message
+            && self.source_node == other.source_node
+            && self.target_node == other.target_node
+            && self.timestamp == other.timestamp
+            && self.sequence == other.sequence
+            && self.acks.len() == other.acks.len()
+            && self.acks.iter().all(|(k, v)| other.acks.get(k) == Some(v))
+    }
+}
+
+impl Eq for CannedMessageAckEvent {}
+
 /// Bounded storage for canned message events.
 ///
 /// Uses LWW (Last-Writer-Wins) semantics per (source_node, message_type) pair.
@@ -511,5 +847,277 @@ mod tests {
         assert!(store.get(node, CannedMessage::Ack).is_some());
         assert!(store.get(node, CannedMessage::Emergency).is_some());
         assert!(store.get(node, CannedMessage::CheckIn).is_some());
+    }
+
+    // ===== CannedMessageAckEvent tests =====
+
+    #[test]
+    fn test_ack_event_creation() {
+        let source = NodeId::new(0x12345678);
+        let event = CannedMessageAckEvent::new(CannedMessage::CheckIn, source, None, 1706234567000);
+
+        // Source should auto-ack
+        assert!(event.has_acked(source));
+        assert_eq!(event.ack_count(), 1);
+        assert_eq!(event.ack_timestamp(source), Some(1706234567000));
+    }
+
+    #[test]
+    fn test_ack_recording() {
+        let source = NodeId::new(0x111);
+        let acker = NodeId::new(0x222);
+
+        let mut event = CannedMessageAckEvent::new(CannedMessage::Emergency, source, None, 1000);
+
+        // New ACK returns true
+        assert!(event.ack(acker, 1500));
+        assert!(event.has_acked(acker));
+        assert_eq!(event.ack_count(), 2);
+
+        // Same ACK with same timestamp returns false
+        assert!(!event.ack(acker, 1500));
+
+        // Same ACK with older timestamp returns false
+        assert!(!event.ack(acker, 1400));
+
+        // Same ACK with newer timestamp returns true (updates)
+        assert!(event.ack(acker, 1600));
+        assert_eq!(event.ack_timestamp(acker), Some(1600));
+
+        // NULL node ID rejected
+        assert!(!event.ack(NodeId::NULL, 2000));
+    }
+
+    #[test]
+    fn test_ack_merge_same_event() {
+        let source = NodeId::new(0x111);
+        let node_a = NodeId::new(0x222);
+        let node_b = NodeId::new(0x333);
+
+        // Event 1: source + node_a acked
+        let mut event1 = CannedMessageAckEvent::new(CannedMessage::CheckIn, source, None, 1000);
+        event1.ack(node_a, 1100);
+
+        // Event 2 (same message): source + node_b acked
+        let mut event2 = CannedMessageAckEvent::new(CannedMessage::CheckIn, source, None, 1000);
+        event2.ack(node_b, 1200);
+
+        // Merge should combine ACKs (OR semantics)
+        let changed = event1.merge(&event2);
+        assert!(changed);
+        assert!(event1.has_acked(source));
+        assert!(event1.has_acked(node_a));
+        assert!(event1.has_acked(node_b));
+        assert_eq!(event1.ack_count(), 3);
+
+        // Merging again should not change
+        assert!(!event1.merge(&event2));
+    }
+
+    #[test]
+    fn test_ack_merge_different_event() {
+        let source = NodeId::new(0x111);
+        let acker = NodeId::new(0x222);
+
+        // Older event with ACK
+        let mut older = CannedMessageAckEvent::new(CannedMessage::CheckIn, source, None, 1000);
+        older.ack(acker, 1100);
+
+        // Newer event without that ACK
+        let newer = CannedMessageAckEvent::new(
+            CannedMessage::Alert, // Different message type, same source
+            source,
+            None,
+            2000,
+        );
+
+        // Higher timestamp wins (LWW)
+        let changed = older.merge(&newer);
+        assert!(changed);
+        assert_eq!(older.timestamp, 2000);
+        assert_eq!(older.message, CannedMessage::Alert);
+        // The old ACK is gone, only source's implicit ACK remains
+        assert!(!older.has_acked(acker));
+        assert_eq!(older.ack_count(), 1);
+
+        // Merging older into newer should not change
+        let mut newer2 = CannedMessageAckEvent::new(CannedMessage::Alert, source, None, 2000);
+        let older2 = CannedMessageAckEvent::new(CannedMessage::CheckIn, source, None, 1000);
+        assert!(!newer2.merge(&older2));
+    }
+
+    #[test]
+    fn test_ack_encode_decode() {
+        let source = NodeId::new(0x12345678);
+        let target = NodeId::new(0xDEADBEEF);
+        let acker1 = NodeId::new(0xAAAA);
+        let acker2 = NodeId::new(0xBBBB);
+
+        let mut event = CannedMessageAckEvent::with_sequence(
+            CannedMessage::Emergency,
+            source,
+            Some(target),
+            1706234567000,
+            42,
+        );
+        event.ack(acker1, 1706234568000);
+        event.ack(acker2, 1706234569000);
+
+        let encoded = event.encode();
+        // 24 base + 3 ACKs * 12 = 60 bytes
+        assert_eq!(encoded.len(), 24 + 3 * 12);
+        assert_eq!(encoded[0], CANNED_MESSAGE_MARKER);
+
+        let decoded = CannedMessageAckEvent::decode(&encoded).unwrap();
+        assert_eq!(decoded.message, event.message);
+        assert_eq!(decoded.source_node, event.source_node);
+        assert_eq!(decoded.target_node, event.target_node);
+        assert_eq!(decoded.timestamp, event.timestamp);
+        assert_eq!(decoded.sequence, event.sequence);
+        assert_eq!(decoded.ack_count(), 3);
+        assert!(decoded.has_acked(source));
+        assert!(decoded.has_acked(acker1));
+        assert!(decoded.has_acked(acker2));
+        assert_eq!(decoded.ack_timestamp(acker1), Some(1706234568000));
+        assert_eq!(decoded.ack_timestamp(acker2), Some(1706234569000));
+    }
+
+    #[test]
+    fn test_ack_decode_base_event() {
+        // Create a base CannedMessageEvent (22 bytes)
+        let base_event = CannedMessageEvent::with_sequence(
+            CannedMessage::CheckIn,
+            NodeId::new(0x12345678),
+            None,
+            1706234567000,
+            5,
+        );
+
+        let encoded = base_event.encode();
+        assert_eq!(encoded.len(), 22);
+
+        // CannedMessageAckEvent should decode it with implicit source ACK
+        let decoded = CannedMessageAckEvent::decode(&encoded).unwrap();
+        assert_eq!(decoded.message, base_event.message);
+        assert_eq!(decoded.source_node, base_event.source_node);
+        assert_eq!(decoded.timestamp, base_event.timestamp);
+        assert_eq!(decoded.sequence, base_event.sequence);
+        // Only source's implicit ACK
+        assert_eq!(decoded.ack_count(), 1);
+        assert!(decoded.has_acked(base_event.source_node));
+    }
+
+    #[test]
+    fn test_ack_max_limit() {
+        let source = NodeId::new(0x111);
+        let mut event = CannedMessageAckEvent::new(CannedMessage::Emergency, source, None, 1000);
+
+        // Fill up to MAX_CANNED_ACKS - 1 (since source already has one)
+        for i in 1..MAX_CANNED_ACKS {
+            let acker = NodeId::new(i as u32 + 1000);
+            assert!(
+                event.ack(acker, 2000 + i as u64),
+                "ack {} should succeed",
+                i
+            );
+        }
+
+        assert_eq!(event.ack_count(), MAX_CANNED_ACKS);
+
+        // Next ACK should fail (map full)
+        let overflow_acker = NodeId::new(0xFFFFFF);
+        assert!(!event.ack(overflow_acker, 9999));
+        assert!(!event.has_acked(overflow_acker));
+    }
+
+    #[test]
+    fn test_ack_validation() {
+        // Too short
+        assert!(CannedMessageAckEvent::decode(&[0xAF]).is_none());
+        assert!(CannedMessageAckEvent::decode(&[0xAF; 21]).is_none());
+
+        // Wrong marker
+        let mut bad_marker = [0u8; 22];
+        bad_marker[0] = 0x00;
+        assert!(CannedMessageAckEvent::decode(&bad_marker).is_none());
+
+        // NULL source node
+        let mut null_source = [0u8; 22];
+        null_source[0] = CANNED_MESSAGE_MARKER;
+        null_source[1] = CannedMessage::Ack.as_u8();
+        // source bytes 2-5 are 0 (NULL)
+        assert!(CannedMessageAckEvent::decode(&null_source).is_none());
+
+        // Invalid message code
+        let mut bad_code = [0u8; 22];
+        bad_code[0] = CANNED_MESSAGE_MARKER;
+        bad_code[1] = 0xEE; // Invalid code
+        bad_code[2] = 1; // Non-null source
+        assert!(CannedMessageAckEvent::decode(&bad_code).is_none());
+
+        // Excessive num_acks
+        let mut excessive_acks = [0u8; 24];
+        excessive_acks[0] = CANNED_MESSAGE_MARKER;
+        excessive_acks[1] = CannedMessage::Ack.as_u8();
+        excessive_acks[2] = 1; // Non-null source
+                               // num_acks = 0xFFFF (65535) at bytes 22-23
+        excessive_acks[22] = 0xFF;
+        excessive_acks[23] = 0xFF;
+        assert!(CannedMessageAckEvent::decode(&excessive_acks).is_none());
+
+        // num_acks declares more than data provides
+        let mut truncated = [0u8; 24];
+        truncated[0] = CANNED_MESSAGE_MARKER;
+        truncated[1] = CannedMessage::Ack.as_u8();
+        truncated[2] = 1; // Non-null source
+        truncated[22] = 5; // Claims 5 ACKs but no data follows
+        truncated[23] = 0;
+        assert!(CannedMessageAckEvent::decode(&truncated).is_none());
+    }
+
+    #[test]
+    fn test_ack_event_as_event_roundtrip() {
+        let source = NodeId::new(0x12345678);
+        let target = NodeId::new(0xDEADBEEF);
+
+        let ack_event = CannedMessageAckEvent::with_sequence(
+            CannedMessage::NeedMedic,
+            source,
+            Some(target),
+            1706234567000,
+            99,
+        );
+
+        let base = ack_event.as_event();
+        assert_eq!(base.message, CannedMessage::NeedMedic);
+        assert_eq!(base.source_node, source);
+        assert_eq!(base.target_node, Some(target));
+        assert_eq!(base.timestamp, 1706234567000);
+        assert_eq!(base.sequence, 99);
+
+        // Convert back
+        let restored = CannedMessageAckEvent::from_event(base);
+        assert_eq!(restored.message, ack_event.message);
+        assert_eq!(restored.source_node, ack_event.source_node);
+        assert_eq!(restored.target_node, ack_event.target_node);
+        assert_eq!(restored.timestamp, ack_event.timestamp);
+        assert_eq!(restored.sequence, ack_event.sequence);
+        // Only source ACK restored
+        assert_eq!(restored.ack_count(), 1);
+        assert!(restored.has_acked(source));
+    }
+
+    #[test]
+    fn test_ack_event_acked_nodes_iterator() {
+        let source = NodeId::new(0x111);
+        let mut event = CannedMessageAckEvent::new(CannedMessage::CheckIn, source, None, 1000);
+        event.ack(NodeId::new(0x222), 1100);
+        event.ack(NodeId::new(0x333), 1200);
+
+        let nodes: heapless::Vec<NodeId, 8> = event.acked_nodes().collect();
+        assert_eq!(nodes.len(), 3);
+        assert!(nodes.contains(&source));
+        assert!(nodes.contains(&NodeId::new(0x222)));
+        assert!(nodes.contains(&NodeId::new(0x333)));
     }
 }
