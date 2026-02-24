@@ -729,6 +729,22 @@ internal interface UniffiForeignFutureCompleteVoid : com.sun.jna.Callback {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // A JNA Library to expose the extern-C FFI definitions.
 // This is an implementation detail which will be called internally by the public API.
 
@@ -744,6 +760,16 @@ internal interface UniffiLib : Library {
         
     }
 
+    fun uniffi_hive_lite_android_fn_func_canned_message_ack_event_ack_count(`event`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): Int
+    fun uniffi_hive_lite_android_fn_func_canned_message_ack_event_add_ack(`event`: RustBuffer.ByValue,`ackerNodeId`: Int,`ackTimestamp`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_hive_lite_android_fn_func_canned_message_ack_event_get_ack_timestamp(`event`: RustBuffer.ByValue,`nodeId`: Int,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_hive_lite_android_fn_func_canned_message_ack_event_has_acked(`event`: RustBuffer.ByValue,`nodeId`: Int,uniffi_out_err: UniffiRustCallStatus, 
+    ): Byte
+    fun uniffi_hive_lite_android_fn_func_canned_message_ack_event_merge(`event1`: RustBuffer.ByValue,`event2`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
     fun uniffi_hive_lite_android_fn_func_canned_message_code(`message`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
     fun uniffi_hive_lite_android_fn_func_canned_message_from_code(`code`: Byte,uniffi_out_err: UniffiRustCallStatus, 
@@ -756,9 +782,15 @@ internal interface UniffiLib : Library {
     ): Byte
     fun uniffi_hive_lite_android_fn_func_canned_message_short_name(`message`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
+    fun uniffi_hive_lite_android_fn_func_create_canned_message_ack_event(`message`: RustBuffer.ByValue,`sourceNode`: Int,`targetNode`: Int,`timestamp`: Long,`sequence`: Int,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
     fun uniffi_hive_lite_android_fn_func_create_canned_message_event(`message`: RustBuffer.ByValue,`sourceNode`: Int,`targetNode`: Int,`timestamp`: Long,`sequence`: Int,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
+    fun uniffi_hive_lite_android_fn_func_decode_canned_message_ack_event(`data`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
     fun uniffi_hive_lite_android_fn_func_decode_canned_message_event(`data`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    ): RustBuffer.ByValue
+    fun uniffi_hive_lite_android_fn_func_encode_canned_message_ack_event(`event`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
     fun uniffi_hive_lite_android_fn_func_encode_canned_message_event(`event`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
@@ -874,6 +906,16 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_hive_lite_android_rust_future_complete_void(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
+    fun uniffi_hive_lite_android_checksum_func_canned_message_ack_event_ack_count(
+    ): Short
+    fun uniffi_hive_lite_android_checksum_func_canned_message_ack_event_add_ack(
+    ): Short
+    fun uniffi_hive_lite_android_checksum_func_canned_message_ack_event_get_ack_timestamp(
+    ): Short
+    fun uniffi_hive_lite_android_checksum_func_canned_message_ack_event_has_acked(
+    ): Short
+    fun uniffi_hive_lite_android_checksum_func_canned_message_ack_event_merge(
+    ): Short
     fun uniffi_hive_lite_android_checksum_func_canned_message_code(
     ): Short
     fun uniffi_hive_lite_android_checksum_func_canned_message_from_code(
@@ -886,9 +928,15 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_hive_lite_android_checksum_func_canned_message_short_name(
     ): Short
+    fun uniffi_hive_lite_android_checksum_func_create_canned_message_ack_event(
+    ): Short
     fun uniffi_hive_lite_android_checksum_func_create_canned_message_event(
     ): Short
+    fun uniffi_hive_lite_android_checksum_func_decode_canned_message_ack_event(
+    ): Short
     fun uniffi_hive_lite_android_checksum_func_decode_canned_message_event(
+    ): Short
+    fun uniffi_hive_lite_android_checksum_func_encode_canned_message_ack_event(
     ): Short
     fun uniffi_hive_lite_android_checksum_func_encode_canned_message_event(
     ): Short
@@ -909,6 +957,21 @@ private fun uniffiCheckContractApiVersion(lib: UniffiLib) {
 
 @Suppress("UNUSED_PARAMETER")
 private fun uniffiCheckApiChecksums(lib: UniffiLib) {
+    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_ack_event_ack_count() != 64102.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_ack_event_add_ack() != 20334.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_ack_event_get_ack_timestamp() != 448.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_ack_event_has_acked() != 7385.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_ack_event_merge() != 4278.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_hive_lite_android_checksum_func_canned_message_code() != 63231.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
@@ -927,10 +990,19 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_hive_lite_android_checksum_func_canned_message_short_name() != 12175.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
+    if (lib.uniffi_hive_lite_android_checksum_func_create_canned_message_ack_event() != 582.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_hive_lite_android_checksum_func_create_canned_message_event() != 31292.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
+    if (lib.uniffi_hive_lite_android_checksum_func_decode_canned_message_ack_event() != 22659.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_hive_lite_android_checksum_func_decode_canned_message_event() != 32244.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_hive_lite_android_checksum_func_encode_canned_message_ack_event() != 46873.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_hive_lite_android_checksum_func_encode_canned_message_event() != 50297.toShort()) {
@@ -1154,6 +1226,121 @@ public object FfiConverterByteArray: FfiConverterRustBuffer<ByteArray> {
 
 
 /**
+ * ACK entry: which node acknowledged and when.
+ */
+data class AckEntry (
+    /**
+     * Node ID that sent the ACK
+     */
+    var `nodeId`: kotlin.UInt, 
+    /**
+     * Timestamp when ACK was sent
+     */
+    var `timestamp`: kotlin.ULong
+) {
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeAckEntry: FfiConverterRustBuffer<AckEntry> {
+    override fun read(buf: ByteBuffer): AckEntry {
+        return AckEntry(
+            FfiConverterUInt.read(buf),
+            FfiConverterULong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: AckEntry) = (
+            FfiConverterUInt.allocationSize(value.`nodeId`) +
+            FfiConverterULong.allocationSize(value.`timestamp`)
+    )
+
+    override fun write(value: AckEntry, buf: ByteBuffer) {
+            FfiConverterUInt.write(value.`nodeId`, buf)
+            FfiConverterULong.write(value.`timestamp`, buf)
+    }
+}
+
+
+
+/**
+ * CannedMessageAckEvent - a canned message with embedded ACK tracking.
+ *
+ * Unlike `CannedMessageEventData`, this includes a map of ACKs from other nodes.
+ * ACKs are updates to the document, not separate messages.
+ *
+ * Wire format: [0xAF][code:1][src:4][tgt:4][timestamp:8][seq:4][num_acks:2][acks...]
+ */
+data class CannedMessageAckEventData (
+    /**
+     * The message type
+     */
+    var `message`: CannedMessageType, 
+    /**
+     * Source node ID (who sent this)
+     */
+    var `sourceNode`: kotlin.UInt, 
+    /**
+     * Target node ID (0 if broadcast)
+     */
+    var `targetNode`: kotlin.UInt, 
+    /**
+     * Timestamp in milliseconds
+     */
+    var `timestamp`: kotlin.ULong, 
+    /**
+     * Sequence number for deduplication
+     */
+    var `sequence`: kotlin.UInt, 
+    /**
+     * ACK entries: (node_id, ack_timestamp) pairs
+     */
+    var `acks`: List<AckEntry>
+) {
+    
+    companion object
+}
+
+/**
+ * @suppress
+ */
+public object FfiConverterTypeCannedMessageAckEventData: FfiConverterRustBuffer<CannedMessageAckEventData> {
+    override fun read(buf: ByteBuffer): CannedMessageAckEventData {
+        return CannedMessageAckEventData(
+            FfiConverterTypeCannedMessageType.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterSequenceTypeAckEntry.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: CannedMessageAckEventData) = (
+            FfiConverterTypeCannedMessageType.allocationSize(value.`message`) +
+            FfiConverterUInt.allocationSize(value.`sourceNode`) +
+            FfiConverterUInt.allocationSize(value.`targetNode`) +
+            FfiConverterULong.allocationSize(value.`timestamp`) +
+            FfiConverterUInt.allocationSize(value.`sequence`) +
+            FfiConverterSequenceTypeAckEntry.allocationSize(value.`acks`)
+    )
+
+    override fun write(value: CannedMessageAckEventData, buf: ByteBuffer) {
+            FfiConverterTypeCannedMessageType.write(value.`message`, buf)
+            FfiConverterUInt.write(value.`sourceNode`, buf)
+            FfiConverterUInt.write(value.`targetNode`, buf)
+            FfiConverterULong.write(value.`timestamp`, buf)
+            FfiConverterUInt.write(value.`sequence`, buf)
+            FfiConverterSequenceTypeAckEntry.write(value.`acks`, buf)
+    }
+}
+
+
+
+/**
  * CannedMessageEvent exported to Kotlin.
  *
  * Contains message type plus metadata (source, target, timestamp, sequence).
@@ -1274,6 +1461,70 @@ public object FfiConverterTypeCannedMessageType: FfiConverterRustBuffer<CannedMe
 /**
  * @suppress
  */
+public object FfiConverterOptionalULong: FfiConverterRustBuffer<kotlin.ULong?> {
+    override fun read(buf: ByteBuffer): kotlin.ULong? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterULong.read(buf)
+    }
+
+    override fun allocationSize(value: kotlin.ULong?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterULong.allocationSize(value)
+        }
+    }
+
+    override fun write(value: kotlin.ULong?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterULong.write(value, buf)
+        }
+    }
+}
+
+
+
+
+/**
+ * @suppress
+ */
+public object FfiConverterOptionalTypeCannedMessageAckEventData: FfiConverterRustBuffer<CannedMessageAckEventData?> {
+    override fun read(buf: ByteBuffer): CannedMessageAckEventData? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterTypeCannedMessageAckEventData.read(buf)
+    }
+
+    override fun allocationSize(value: CannedMessageAckEventData?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterTypeCannedMessageAckEventData.allocationSize(value)
+        }
+    }
+
+    override fun write(value: CannedMessageAckEventData?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterTypeCannedMessageAckEventData.write(value, buf)
+        }
+    }
+}
+
+
+
+
+/**
+ * @suppress
+ */
 public object FfiConverterOptionalTypeCannedMessageEventData: FfiConverterRustBuffer<CannedMessageEventData?> {
     override fun read(buf: ByteBuffer): CannedMessageEventData? {
         if (buf.get().toInt() == 0) {
@@ -1331,6 +1582,102 @@ public object FfiConverterOptionalTypeCannedMessageType: FfiConverterRustBuffer<
         }
     }
 }
+
+
+
+
+/**
+ * @suppress
+ */
+public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckEntry>> {
+    override fun read(buf: ByteBuffer): List<AckEntry> {
+        val len = buf.getInt()
+        return List<AckEntry>(len) {
+            FfiConverterTypeAckEntry.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<AckEntry>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeAckEntry.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<AckEntry>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeAckEntry.write(it, buf)
+        }
+    }
+}
+        /**
+         * Get the number of ACKs on this message.
+         */ fun `cannedMessageAckEventAckCount`(`event`: CannedMessageAckEventData): kotlin.UInt {
+            return FfiConverterUInt.lift(
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_ack_event_ack_count(
+        FfiConverterTypeCannedMessageAckEventData.lower(`event`),_status)
+}
+    )
+    }
+    
+
+        /**
+         * Add an ACK to a CannedMessageAckEvent.
+         *
+         * Returns the updated event with the new ACK added.
+         * If the ACK already exists with a newer or equal timestamp, returns unchanged.
+         */ fun `cannedMessageAckEventAddAck`(`event`: CannedMessageAckEventData, `ackerNodeId`: kotlin.UInt, `ackTimestamp`: kotlin.ULong): CannedMessageAckEventData {
+            return FfiConverterTypeCannedMessageAckEventData.lift(
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_ack_event_add_ack(
+        FfiConverterTypeCannedMessageAckEventData.lower(`event`),FfiConverterUInt.lower(`ackerNodeId`),FfiConverterULong.lower(`ackTimestamp`),_status)
+}
+    )
+    }
+    
+
+        /**
+         * Get ACK timestamp for a specific node, or None if not ACKed.
+         */ fun `cannedMessageAckEventGetAckTimestamp`(`event`: CannedMessageAckEventData, `nodeId`: kotlin.UInt): kotlin.ULong? {
+            return FfiConverterOptionalULong.lift(
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_ack_event_get_ack_timestamp(
+        FfiConverterTypeCannedMessageAckEventData.lower(`event`),FfiConverterUInt.lower(`nodeId`),_status)
+}
+    )
+    }
+    
+
+        /**
+         * Check if a node has ACKed this message.
+         */ fun `cannedMessageAckEventHasAcked`(`event`: CannedMessageAckEventData, `nodeId`: kotlin.UInt): kotlin.Boolean {
+            return FfiConverterBoolean.lift(
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_ack_event_has_acked(
+        FfiConverterTypeCannedMessageAckEventData.lower(`event`),FfiConverterUInt.lower(`nodeId`),_status)
+}
+    )
+    }
+    
+
+        /**
+         * Merge two CannedMessageAckEvents using CRDT semantics.
+         *
+         * - Same event (source + timestamp match): merge ACK maps with OR semantics
+         * - Different event: higher timestamp wins (LWW)
+         *
+         * Returns the merged event.
+         */ fun `cannedMessageAckEventMerge`(`event1`: CannedMessageAckEventData, `event2`: CannedMessageAckEventData): CannedMessageAckEventData {
+            return FfiConverterTypeCannedMessageAckEventData.lift(
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_ack_event_merge(
+        FfiConverterTypeCannedMessageAckEventData.lower(`event1`),FfiConverterTypeCannedMessageAckEventData.lower(`event2`),_status)
+}
+    )
+    }
+    
+
         /**
          * Get the wire format code for a message type.
          */ fun `cannedMessageCode`(`message`: CannedMessageType): kotlin.UByte {
@@ -1406,12 +1753,39 @@ public object FfiConverterOptionalTypeCannedMessageType: FfiConverterRustBuffer<
     
 
         /**
+         * Create a new CannedMessageAckEvent (source auto-acknowledges).
+         */ fun `createCannedMessageAckEvent`(`message`: CannedMessageType, `sourceNode`: kotlin.UInt, `targetNode`: kotlin.UInt, `timestamp`: kotlin.ULong, `sequence`: kotlin.UInt): CannedMessageAckEventData {
+            return FfiConverterTypeCannedMessageAckEventData.lift(
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_create_canned_message_ack_event(
+        FfiConverterTypeCannedMessageType.lower(`message`),FfiConverterUInt.lower(`sourceNode`),FfiConverterUInt.lower(`targetNode`),FfiConverterULong.lower(`timestamp`),FfiConverterUInt.lower(`sequence`),_status)
+}
+    )
+    }
+    
+
+        /**
          * Create a new CannedMessageEvent.
          */ fun `createCannedMessageEvent`(`message`: CannedMessageType, `sourceNode`: kotlin.UInt, `targetNode`: kotlin.UInt, `timestamp`: kotlin.ULong, `sequence`: kotlin.UInt): CannedMessageEventData {
             return FfiConverterTypeCannedMessageEventData.lift(
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_create_canned_message_event(
         FfiConverterTypeCannedMessageType.lower(`message`),FfiConverterUInt.lower(`sourceNode`),FfiConverterUInt.lower(`targetNode`),FfiConverterULong.lower(`timestamp`),FfiConverterUInt.lower(`sequence`),_status)
+}
+    )
+    }
+    
+
+        /**
+         * Decode wire format bytes to a CannedMessageAckEvent.
+         *
+         * Handles both base format (22 bytes) and extended format (24+ bytes with ACKs).
+         * Returns None if data is malformed.
+         */ fun `decodeCannedMessageAckEvent`(`data`: kotlin.ByteArray): CannedMessageAckEventData? {
+            return FfiConverterOptionalTypeCannedMessageAckEventData.lift(
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_decode_canned_message_ack_event(
+        FfiConverterByteArray.lower(`data`),_status)
 }
     )
     }
@@ -1426,6 +1800,21 @@ public object FfiConverterOptionalTypeCannedMessageType: FfiConverterRustBuffer<
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_decode_canned_message_event(
         FfiConverterByteArray.lower(`data`),_status)
+}
+    )
+    }
+    
+
+        /**
+         * Encode a CannedMessageAckEvent to wire format bytes.
+         *
+         * Returns 24+ bytes: [0xAF][code:1][src:4][tgt:4][timestamp:8][seq:4][num_acks:2][acks...]
+         * Each ACK entry is 12 bytes: [node_id:4][ack_timestamp:8]
+         */ fun `encodeCannedMessageAckEvent`(`event`: CannedMessageAckEventData): kotlin.ByteArray {
+            return FfiConverterByteArray.lift(
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_encode_canned_message_ack_event(
+        FfiConverterTypeCannedMessageAckEventData.lower(`event`),_status)
 }
     )
     }

@@ -92,3 +92,21 @@ git checkout -b feature/my-feature
 git commit -m "feat: description"
 git push rad HEAD:refs/patches -o patch.message="feat: My change"
 ```
+
+## OTA Updates (ESP32)
+
+hive-lite supports over-the-air firmware updates on ESP32 targets with A/B partitioning:
+
+- Streaming SHA256 verification during transfer
+- Ed25519 signature verification (optional, compile-time)
+- Boot validation with automatic rollback (3 attempts)
+- Stop-and-wait reliable transfer over UDP
+
+Build with OTA support:
+
+```bash
+SSID="your-ssid" PWD="your-password" cargo +esp build --release \
+  --features m5stack-core2-wifi --target xtensa-esp32-none-elf --bin hive-lite-wifi
+```
+
+See [ADR-047](https://github.com/kitplummer/hive/blob/main/docs/adr/047-firmware-ota-distribution.md) for protocol details.
