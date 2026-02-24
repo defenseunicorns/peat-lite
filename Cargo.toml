@@ -1,11 +1,12 @@
 [package]
 name = "hive-lite"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
 authors = ["(r)evolve - Revolve Team LLC"]
 license = "Apache-2.0"
 description = "Lightweight CRDT primitives for resource-constrained HIVE nodes"
-repository = "https://app.radicle.xyz/nodes/seed.radicle.garden/rad:TODO"
+repository = "https://app.radicle.xyz/nodes/seed.toph.so/rad:z4Bhrn1aB8T5vp6Vg42xxvAXx5TJx"
+homepage = "https://app.radicle.xyz/nodes/seed.toph.so/rad:z4Bhrn1aB8T5vp6Vg42xxvAXx5TJx"
 keywords = ["crdt", "embedded", "mesh", "hive", "tactical"]
 categories = ["no-std", "data-structures", "embedded"]
 readme = "README.md"
