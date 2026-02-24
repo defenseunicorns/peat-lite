@@ -1,2 +1,22 @@
+# Rust build artifacts
 /target/
+**/target/
+
+# Cargo.lock for library crates
 Cargo.lock
+
+# Android build artifacts
+**/.gradle/
+**/build/
+**/.kotlin/
+**/local.properties
+*.apk
+*.aab
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
