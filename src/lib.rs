@@ -59,15 +59,15 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub mod node_id;
 pub mod canned;
-pub mod lww;
 pub mod counter;
+pub mod lww;
+pub mod node_id;
 pub mod wire;
 
 // Re-export main types at crate root
-pub use node_id::NodeId;
 pub use canned::{CannedMessage, CannedMessageEvent, CannedMessageStore};
-pub use lww::LwwRegister;
 pub use counter::GCounter;
-pub use wire::{CANNED_MESSAGE_MARKER, WireError};
+pub use lww::LwwRegister;
+pub use node_id::NodeId;
+pub use wire::{WireError, CANNED_MESSAGE_MARKER};
