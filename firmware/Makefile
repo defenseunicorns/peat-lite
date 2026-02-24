@@ -1,8 +1,8 @@
 SHELL := /bin/bash
 
-# HIVE-Lite Firmware - Makefile
+# Eche-Lite Firmware - Makefile
 #
-# ESP32 build commands for hive-lite firmware targets.
+# ESP32 build commands for eche-lite firmware targets.
 # Requires: ESP Rust toolchain (espup install)
 #
 # Commands:
@@ -28,7 +28,7 @@ SSID ?= TestNet
 WIFI_PWD ?= password
 
 # OTA signing public key (64 hex chars = 32 bytes Ed25519 pubkey)
-# Get from hive-mesh-node startup log. Leave empty to disable verification.
+# Get from eche-mesh-node startup log. Leave empty to disable verification.
 OTA_SIGNING_PUBKEY ?=
 
 # Feature sets
@@ -36,14 +36,14 @@ FEATURES_WIFI := m5stack-core2-wifi
 FEATURES_OTA := m5stack-core2-wifi,ota
 
 # Output paths
-RELEASE_BIN := target/$(TARGET)/release/hive-lite-wifi
+RELEASE_BIN := target/$(TARGET)/release/eche-lite-wifi
 OTA_IMAGE := ota_firmware.bin
 
 # Serial port (override with: make flash PORT=/dev/ttyUSB1)
 PORT ?= /dev/ttyUSB0
 
 help:
-	@echo "HIVE-Lite Firmware Development"
+	@echo "Eche-Lite Firmware Development"
 	@echo ""
 	@echo "Check (compile-only):"
 	@echo "  check-lib     - Check library (no_std core, no features)"
@@ -66,45 +66,45 @@ help:
 	@echo "  SSID=name                - WiFi network name (default: TestNet)"
 	@echo "  WIFI_PWD=pass            - WiFi password (default: password)"
 	@echo "  PORT=/dev/x              - Serial port (default: /dev/ttyUSB0)"
-	@echo "  OTA_SIGNING_PUBKEY=hex   - Ed25519 pubkey (64 hex chars, from mesh-node log)"
+	@echo "  OTA_SIGNING_PUBKEY=hex   - Ed25519 pubkey (64 hex chars, from eche-mesh-node log)"
 
 # ============================================
 # Check (compile-only, fast feedback)
 # ============================================
 
 check-lib:
-	@echo "Checking hive-lite library (no_std)..."
+	@echo "Checking eche-lite library (no_std)..."
 	$(ESP_EXPORT) && cargo $(TOOLCHAIN) check \
 		--lib \
 		--target $(TARGET)
 
 check-wifi:
-	@echo "Checking hive-lite WiFi firmware..."
+	@echo "Checking eche-lite WiFi firmware..."
 	$(ESP_EXPORT) && SSID="$(SSID)" PWD="$(WIFI_PWD)" cargo $(TOOLCHAIN) check \
 		--release \
 		--features $(FEATURES_WIFI) \
 		--target $(TARGET) \
-		--bin hive-lite-wifi
+		--bin eche-lite-wifi
 
 check-ota:
-	@echo "Checking hive-lite WiFi+OTA firmware..."
+	@echo "Checking eche-lite WiFi+OTA firmware..."
 	$(ESP_EXPORT) && SSID="$(SSID)" PWD="$(WIFI_PWD)" OTA_SIGNING_PUBKEY="$(OTA_SIGNING_PUBKEY)" cargo $(TOOLCHAIN) check \
 		--release \
 		--features $(FEATURES_OTA) \
 		--target $(TARGET) \
-		--bin hive-lite-wifi
+		--bin eche-lite-wifi
 
 # ============================================
 # Build
 # ============================================
 
 build:
-	@echo "Building hive-lite WiFi+OTA firmware (release)..."
+	@echo "Building eche-lite WiFi+OTA firmware (release)..."
 	$(ESP_EXPORT) && SSID="$(SSID)" PWD="$(WIFI_PWD)" OTA_SIGNING_PUBKEY="$(OTA_SIGNING_PUBKEY)" cargo $(TOOLCHAIN) build \
 		--release \
 		--features $(FEATURES_OTA) \
 		--target $(TARGET) \
-		--bin hive-lite-wifi
+		--bin eche-lite-wifi
 	@echo "Firmware built: $(RELEASE_BIN)"
 
 build-image: build

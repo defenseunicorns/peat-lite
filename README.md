@@ -1,12 +1,10 @@
-# hive-lite
+# eche-lite
 
-Lightweight CRDT primitives for resource-constrained HIVE nodes.
-
-[![Radicle](https://img.shields.io/badge/radicle-z4Bhrn1aB8T5vp6Vg42xxvAXx5TJx-blue)](https://app.radicle.xyz/nodes/seed.toph.so/rad:z4Bhrn1aB8T5vp6Vg42xxvAXx5TJx)
+Lightweight CRDT primitives for resource-constrained Eche nodes.
 
 ## Overview
 
-hive-lite provides bounded, `no_std`-compatible data structures suitable for devices with limited memory (256KB RAM budget):
+eche-lite provides bounded, `no_std`-compatible data structures suitable for devices with limited memory (256KB RAM budget):
 
 - WearTAK on Samsung watches
 - ESP32 sensor nodes
@@ -26,7 +24,7 @@ hive-lite provides bounded, `no_std`-compatible data structures suitable for dev
 ## Usage
 
 ```rust
-use hive_lite::{NodeId, CannedMessage, CannedMessageEvent};
+use eche_lite::{NodeId, CannedMessage, CannedMessageEvent};
 
 let my_node = NodeId::new(0x12345678);
 let event = CannedMessageEvent::new(
@@ -59,7 +57,7 @@ assert_eq!(bytes[0], 0xAF);  // CannedMessage marker
 ```toml
 # Cargo.toml - embedded usage
 [dependencies]
-hive-lite = { version = "0.1", default-features = false }
+eche-lite = { version = "0.1", default-features = false }
 ```
 
 ## Building
@@ -79,23 +77,9 @@ cargo test
 
 Apache-2.0
 
-## Contributing
-
-This project uses [Radicle](https://radicle.xyz) for collaboration.
-
-```bash
-# Clone
-rad clone rad:z4Bhrn1aB8T5vp6Vg42xxvAXx5TJx
-
-# Create a patch
-git checkout -b feature/my-feature
-git commit -m "feat: description"
-git push rad HEAD:refs/patches -o patch.message="feat: My change"
-```
-
 ## OTA Updates (ESP32)
 
-hive-lite supports over-the-air firmware updates on ESP32 targets with A/B partitioning:
+eche-lite supports over-the-air firmware updates on ESP32 targets with A/B partitioning:
 
 - Streaming SHA256 verification during transfer
 - Ed25519 signature verification (optional, compile-time)
@@ -106,7 +90,5 @@ Build with OTA support:
 
 ```bash
 SSID="your-ssid" PWD="your-password" cargo +esp build --release \
-  --features m5stack-core2-wifi --target xtensa-esp32-none-elf --bin hive-lite-wifi
+  --features m5stack-core2-wifi --target xtensa-esp32-none-elf --bin eche-lite-wifi
 ```
-
-See [ADR-047](https://github.com/kitplummer/hive/blob/main/docs/adr/047-firmware-ota-distribution.md) for protocol details.

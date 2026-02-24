@@ -1,7 +1,7 @@
 //! OTA (Over-The-Air) wire protocol constants.
 //!
 //! Chunk sizes, offer format sizes, flags, result codes, and abort reason
-//! codes shared between OTA senders (hive-mesh) and receivers (hive-lite).
+//! codes shared between OTA senders (eche-mesh) and receivers (eche-lite).
 
 /// Maximum data bytes in a single OTA chunk (496 - 6 bytes framing).
 pub const OTA_CHUNK_DATA_SIZE: usize = 448;

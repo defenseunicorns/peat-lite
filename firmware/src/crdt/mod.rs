@@ -1,4 +1,4 @@
-//! Primitive CRDTs for HIVE-Lite
+//! Primitive CRDTs for Eche-Lite
 //!
 //! These are lightweight, no_std compatible CRDTs suitable for
 //! resource-constrained embedded devices.
@@ -11,7 +11,7 @@ pub use lww_register::LwwRegister;
 pub use g_counter::GCounter;
 pub use pn_counter::PnCounter;
 
-/// Trait for all HIVE-Lite CRDTs
+/// Trait for all Eche-Lite CRDTs
 pub trait LiteCrdt: Sized {
     /// The operation type for this CRDT
     type Op;

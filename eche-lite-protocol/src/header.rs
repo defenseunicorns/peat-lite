@@ -1,4 +1,4 @@
-//! HIVE-Lite packet header codec.
+//! Eche-Lite packet header codec.
 //!
 //! The header is a fixed 16-byte prefix on every packet:
 //!

@@ -1,6 +1,6 @@
-//! HIVE-Lite M5Stack Core2 Demo with WiFi
+//! Eche-Lite M5Stack Core2 Demo with WiFi
 //!
-//! Demonstrates HIVE-Lite running on ESP32 with WiFi mesh networking.
+//! Demonstrates Eche-Lite running on ESP32 with WiFi mesh networking.
 
 #![no_std]
 #![no_main]
@@ -21,19 +21,19 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 // Required for ESP-IDF bootloader compatibility
 esp_bootloader_esp_idf::esp_app_desc!();
 
-// Import HIVE-Lite
-use hive_lite_firmware::prelude::*;
+// Import Eche-Lite
+use eche_lite_firmware::prelude::*;
 
 // OTA support
 #[cfg(feature = "ota")]
-use hive_lite_firmware::ota::{OtaReceiver, OtaState, ota_error_to_result_code};
+use eche_lite_firmware::ota::{OtaReceiver, OtaState, ota_error_to_result_code};
 
 // WiFi credentials from environment at compile time
 const SSID: &str = env!("SSID");
 const PASSWORD: &str = env!("PWD");
 
 // UDP port — canonical value from the shared protocol crate.
-use hive_lite_protocol::DEFAULT_PORT as HIVE_UDP_PORT;
+use eche_lite_protocol::DEFAULT_PORT as ECHE_UDP_PORT;
 
 // Display support
 #[cfg(feature = "m5stack-core2")]
@@ -422,10 +422,10 @@ fn main() -> ! {
     // Boot validation check — must run early, before any network activity.
     // If a pending OTA update has exceeded max boot attempts, this rolls back and reboots.
     #[cfg(feature = "ota")]
-    hive_lite_firmware::ota::boot_validation_check();
+    eche_lite_firmware::ota::boot_validation_check();
 
     esp_println::println!("========================================");
-    esp_println::println!("  HIVE-Lite v{} (WiFi)", env!("CARGO_PKG_VERSION"));
+    esp_println::println!("  Eche-Lite v{} (WiFi)", env!("CARGO_PKG_VERSION"));
     esp_println::println!("  Protocol version: {}", PROTOCOL_VERSION);
     esp_println::println!("========================================");
 
@@ -635,7 +635,7 @@ fn main() -> ! {
         let counter_style = MonoTextStyle::new(&FONT_10X20, Rgb565::new(31, 63, 0)); // Green-yellow
 
         // Title
-        Text::new("HIVE-Lite", Point::new(90, 30), title_style)
+        Text::new("Eche-Lite", Point::new(90, 30), title_style)
             .draw(&mut disp)
             .unwrap();
 
@@ -698,13 +698,13 @@ fn main() -> ! {
     // TTL trackers for each CRDT (48 bytes total: 4 × 12 bytes)
     let boot_ms = Instant::now().duration_since_epoch().as_millis() as u64;
     let mut ttl_button = CrdtTtl::new(
-        hive_lite_protocol::DEFAULT_TTL_G_COUNTER, boot_ms);
+        eche_lite_protocol::DEFAULT_TTL_G_COUNTER, boot_ms);
     let mut ttl_activity = CrdtTtl::new(
-        hive_lite_protocol::DEFAULT_TTL_LWW_REGISTER, boot_ms);
+        eche_lite_protocol::DEFAULT_TTL_LWW_REGISTER, boot_ms);
     let mut ttl_posture = CrdtTtl::new(
-        hive_lite_protocol::DEFAULT_TTL_LWW_REGISTER, boot_ms);
+        eche_lite_protocol::DEFAULT_TTL_LWW_REGISTER, boot_ms);
     let mut ttl_battery = CrdtTtl::new(
-        hive_lite_protocol::DEFAULT_TTL_LWW_REGISTER, boot_ms);
+        eche_lite_protocol::DEFAULT_TTL_LWW_REGISTER, boot_ms);
 
     // Sensor reading state
     #[cfg(feature = "m5stack-core2")]
@@ -742,8 +742,8 @@ fn main() -> ! {
         &mut tx_meta, &mut tx_buffer,
     );
 
-    udp_socket.bind(HIVE_UDP_PORT).unwrap();
-    esp_println::println!("UDP socket bound to port {}", HIVE_UDP_PORT);
+    udp_socket.bind(ECHE_UDP_PORT).unwrap();
+    esp_println::println!("UDP socket bound to port {}", ECHE_UDP_PORT);
 
     // Broadcast address for local network
     use smoltcp::wire::Ipv4Address;
@@ -758,13 +758,13 @@ fn main() -> ! {
         seq_num += 1;
         let mut pkt_buf = [0u8; MAX_PACKET_SIZE];
         if let Ok(len) = announce_msg.encode(&mut pkt_buf) {
-            let _ = udp_socket.send(broadcast_addr.into(), HIVE_UDP_PORT, &pkt_buf[..len]);
+            let _ = udp_socket.send(broadcast_addr.into(), ECHE_UDP_PORT, &pkt_buf[..len]);
             esp_println::println!("[TX] ANNOUNCE sent ({} bytes)", len);
 
             // First successful announce TX — mark firmware as validated.
             // This clears the pending validation record so rollback won't trigger.
             #[cfg(feature = "ota")]
-            hive_lite_firmware::ota::ota_mark_validated();
+            eche_lite_firmware::ota::ota_mark_validated();
         }
     }
 
@@ -815,7 +815,7 @@ fn main() -> ! {
                     seq_num += 1;
                     let mut pkt_buf = [0u8; MAX_PACKET_SIZE];
                     if let Ok(len) = data_msg.encode(&mut pkt_buf) {
-                        if let Err(e) = udp_socket.send(broadcast_addr.into(), HIVE_UDP_PORT, &pkt_buf[..len]) {
+                        if let Err(e) = udp_socket.send(broadcast_addr.into(), ECHE_UDP_PORT, &pkt_buf[..len]) {
                             esp_println::println!("[TX] Send error: {:?}", e);
                         } else {
                             esp_println::println!("[TX] DATA GCounter ({} bytes, count={})", len, count);
@@ -954,7 +954,7 @@ fn main() -> ! {
                     seq_num += 1;
                     let mut pkt_buf = [0u8; MAX_PACKET_SIZE];
                     if let Ok(len) = data_msg.encode(&mut pkt_buf) {
-                        let _ = udp_socket.send(broadcast_addr.into(), HIVE_UDP_PORT, &pkt_buf[..len]);
+                        let _ = udp_socket.send(broadcast_addr.into(), ECHE_UDP_PORT, &pkt_buf[..len]);
                     }
                 }
             }
@@ -966,7 +966,7 @@ fn main() -> ! {
                     seq_num += 1;
                     let mut pkt_buf = [0u8; MAX_PACKET_SIZE];
                     if let Ok(len) = data_msg.encode(&mut pkt_buf) {
-                        let _ = udp_socket.send(broadcast_addr.into(), HIVE_UDP_PORT, &pkt_buf[..len]);
+                        let _ = udp_socket.send(broadcast_addr.into(), ECHE_UDP_PORT, &pkt_buf[..len]);
                     }
                 }
             }
@@ -978,7 +978,7 @@ fn main() -> ! {
                     seq_num += 1;
                     let mut pkt_buf = [0u8; MAX_PACKET_SIZE];
                     if let Ok(len) = data_msg.encode(&mut pkt_buf) {
-                        let _ = udp_socket.send(broadcast_addr.into(), HIVE_UDP_PORT, &pkt_buf[..len]);
+                        let _ = udp_socket.send(broadcast_addr.into(), ECHE_UDP_PORT, &pkt_buf[..len]);
                     }
                 }
             }
@@ -996,7 +996,7 @@ fn main() -> ! {
             seq_num += 1;
             let mut pkt_buf = [0u8; MAX_PACKET_SIZE];
             if let Ok(len) = hb_msg.encode(&mut pkt_buf) {
-                let _ = udp_socket.send(broadcast_addr.into(), HIVE_UDP_PORT, &pkt_buf[..len]);
+                let _ = udp_socket.send(broadcast_addr.into(), ECHE_UDP_PORT, &pkt_buf[..len]);
                 esp_println::println!("[TX] HEARTBEAT seq={}", seq_num - 1);
             }
 
@@ -1014,7 +1014,7 @@ fn main() -> ! {
                     seq_num += 1;
                     let mut pkt_buf2 = [0u8; MAX_PACKET_SIZE];
                     if let Ok(len) = data_msg.encode(&mut pkt_buf2) {
-                        let _ = udp_socket.send(broadcast_addr.into(), HIVE_UDP_PORT, &pkt_buf2[..len]);
+                        let _ = udp_socket.send(broadcast_addr.into(), ECHE_UDP_PORT, &pkt_buf2[..len]);
                     }
                 }
             }
@@ -1030,7 +1030,7 @@ fn main() -> ! {
                         MessageType::Data => {
                             // Strip TTL suffix before parsing CRDT payload
                             let (crdt_payload, _rx_ttl) =
-                                hive_lite_protocol::strip_ttl(msg.flags, &msg.payload);
+                                eche_lite_protocol::strip_ttl(msg.flags, &msg.payload);
 
                             if !crdt_payload.is_empty() {
                                 let crdt_type = crdt_payload[0];
@@ -1129,7 +1129,7 @@ fn main() -> ! {
                                     let accept = Message::ota_accept(node_id, session_id, 0);
                                     let mut pkt_buf = [0u8; MAX_PACKET_SIZE];
                                     if let Ok(len) = accept.encode(&mut pkt_buf) {
-                                        let _ = udp_socket.send(src_ip.into(), HIVE_UDP_PORT, &pkt_buf[..len]);
+                                        let _ = udp_socket.send(src_ip.into(), ECHE_UDP_PORT, &pkt_buf[..len]);
                                         esp_println::println!("[OTA] Accept sent for session {}", session_id);
                                     }
                                     ota_last_progress = 0;
@@ -1159,7 +1159,7 @@ fn main() -> ! {
                                     let result_msg = Message::ota_result(node_id, 0, result_code);
                                     let mut pkt_buf = [0u8; MAX_PACKET_SIZE];
                                     if let Ok(len) = result_msg.encode(&mut pkt_buf) {
-                                        let _ = udp_socket.send(src_ip.into(), HIVE_UDP_PORT, &pkt_buf[..len]);
+                                        let _ = udp_socket.send(src_ip.into(), ECHE_UDP_PORT, &pkt_buf[..len]);
                                     }
                                 }
                             }
@@ -1172,7 +1172,7 @@ fn main() -> ! {
                                     let ack = Message::ota_ack(node_id, ota_receiver.session_id, chunk_num);
                                     let mut pkt_buf = [0u8; MAX_PACKET_SIZE];
                                     if let Ok(len) = ack.encode(&mut pkt_buf) {
-                                        let _ = udp_socket.send(src_ip.into(), HIVE_UDP_PORT, &pkt_buf[..len]);
+                                        let _ = udp_socket.send(src_ip.into(), ECHE_UDP_PORT, &pkt_buf[..len]);
                                     }
 
                                     // Update progress display every 5%
@@ -1213,7 +1213,7 @@ fn main() -> ! {
                                     let abort = Message::ota_abort(node_id, ota_receiver.session_id, 0x02);
                                     let mut pkt_buf = [0u8; MAX_PACKET_SIZE];
                                     if let Ok(len) = abort.encode(&mut pkt_buf) {
-                                        let _ = udp_socket.send(src_ip.into(), HIVE_UDP_PORT, &pkt_buf[..len]);
+                                        let _ = udp_socket.send(src_ip.into(), ECHE_UDP_PORT, &pkt_buf[..len]);
                                     }
                                     ota_receiver.reset();
                                 }
@@ -1226,7 +1226,7 @@ fn main() -> ! {
                             let result_msg = Message::ota_result(node_id, ota_receiver.session_id, result_code);
                             let mut pkt_buf = [0u8; MAX_PACKET_SIZE];
                             if let Ok(len) = result_msg.encode(&mut pkt_buf) {
-                                let _ = udp_socket.send(src_ip.into(), HIVE_UDP_PORT, &pkt_buf[..len]);
+                                let _ = udp_socket.send(src_ip.into(), ECHE_UDP_PORT, &pkt_buf[..len]);
                             }
 
                             if ota_receiver.state == OtaState::ReadyToReboot {

@@ -1,4 +1,4 @@
-//! HIVE-Lite message type identifiers.
+//! Eche-Lite message type identifiers.
 
 /// Message types for the gossip protocol.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

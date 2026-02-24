@@ -1,10 +1,10 @@
 //! Node Capabilities
 //!
-//! Re-exports `NodeCapabilities` from `hive_lite_protocol`.
+//! Re-exports `NodeCapabilities` from `eche_lite_protocol`.
 //! Capability flags announced during handshake to enable graceful
 //! degradation between Full and Lite nodes.
 
-pub use hive_lite_protocol::NodeCapabilities;
+pub use eche_lite_protocol::NodeCapabilities;
 
 #[cfg(test)]
 mod tests {

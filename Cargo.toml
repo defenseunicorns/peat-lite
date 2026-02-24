@@ -2,21 +2,21 @@
 resolver = "2"
 members = [
     ".",
-    "hive-lite-protocol",
+    "eche-lite-protocol",
 ]
 # Firmware requires ESP32 toolchain — build separately
 exclude = ["firmware", "android/", "android-ffi/"]
 
 [package]
-name = "hive-lite"
-version = "0.0.4"
+name = "eche-lite"
+version = "0.1.0"
 edition = "2021"
-authors = ["(r)evolve - Revolve Team LLC"]
+authors = ["Kit Plummer <kitplummer@defenseunicorns.com>"]
 license = "Apache-2.0"
-description = "Lightweight CRDT primitives for resource-constrained HIVE nodes"
-repository = "https://app.radicle.xyz/nodes/seed.toph.so/rad:z4Bhrn1aB8T5vp6Vg42xxvAXx5TJx"
-homepage = "https://app.radicle.xyz/nodes/seed.toph.so/rad:z4Bhrn1aB8T5vp6Vg42xxvAXx5TJx"
-keywords = ["crdt", "embedded", "mesh", "hive", "tactical"]
+description = "Lightweight CRDT primitives for resource-constrained Eche nodes"
+repository = "https://github.com/defenseunicorns/eche-lite"
+homepage = "https://github.com/defenseunicorns/eche-lite"
+keywords = ["crdt", "embedded", "mesh", "eche", "tactical"]
 categories = ["no-std", "data-structures", "embedded"]
 readme = "README.md"
 exclude = ["android/", "android-ffi/", "firmware/", "Makefile"]

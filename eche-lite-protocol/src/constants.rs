@@ -1,15 +1,15 @@
 //! Protocol-level constants.
 
-/// Magic bytes identifying a HIVE-Lite packet: ASCII "HIVE".
-pub const MAGIC: [u8; 4] = [0x48, 0x49, 0x56, 0x45];
+/// Magic bytes identifying an Eche-Lite packet: ASCII "ECHE".
+pub const MAGIC: [u8; 4] = [0x45, 0x43, 0x48, 0x45];
 
 /// Protocol version for compatibility checking.
 pub const PROTOCOL_VERSION: u8 = 1;
 
-/// Default UDP port for HIVE-Lite communication.
+/// Default UDP port for Eche-Lite communication.
 ///
-/// This is the canonical deployed value used by both hive-lite firmware
-/// and hive-mesh transport.
+/// This is the canonical deployed value used by both eche-lite firmware
+/// and eche-mesh transport.
 pub const DEFAULT_PORT: u16 = 5555;
 
 /// Default multicast address for discovery: 239.255.72.76 (H.L).

@@ -1,28 +1,8 @@
-# Claude Code Project Guide - hive-lite
+# Claude Code Project Guide - eche-lite
 
 ## Project Overview
 
-hive-lite provides lightweight CRDT primitives for resource-constrained HIVE nodes. It is a **leaf crate** with no dependencies on the HIVE ecosystem, designed for devices with 256KB RAM budget.
-
-## Radicle Workflow
-
-This project uses [Radicle](https://radicle.xyz) for decentralized code collaboration.
-
-**Repository ID**: `rad:z4Bhrn1aB8T5vp6Vg42xxvAXx5TJx`
-**Web UI**: https://app.radicle.xyz/nodes/seed.toph.so/rad:z4Bhrn1aB8T5vp6Vg42xxvAXx5TJx
-
-### Quick Reference
-
-```bash
-# Sync before starting work
-rad sync --fetch
-
-# Check for open patches
-rad patch list
-
-# Create a patch (from feature branch)
-git push rad HEAD:refs/patches -o patch.message="feat: My change"
-```
+eche-lite provides lightweight CRDT primitives for resource-constrained Eche nodes. It is a **leaf crate** with no dependencies on the Eche ecosystem, designed for devices with 256KB RAM budget.
 
 ## Build Commands
 
@@ -42,14 +22,6 @@ cargo clippy -- -D warnings
 cargo test
 cargo build --no-default-features
 ```
-
-## CI Status
-
-GOA runs CI automatically on patches:
-1. `cargo fmt --check`
-2. `cargo clippy -- -D warnings`
-3. `cargo test`
-4. `cargo build --no-default-features` (no_std verification)
 
 ## Architecture
 
@@ -95,5 +67,5 @@ CannedMessageEvent uses a 22-byte wire format:
 
 ## Related Repositories
 
-- **hive-btle**: BLE mesh transport (optionally depends on hive-lite)
-- **hive-protocol**: Full HIVE protocol (uses hive-lite for embedded nodes)
+- **eche-btle**: BLE mesh transport (optionally depends on eche-lite)
+- **eche-mesh**: Full Eche mesh library (uses eche-lite for embedded nodes)

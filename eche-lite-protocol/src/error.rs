@@ -1,6 +1,6 @@
 //! Message encoding/decoding errors.
 
-/// Errors that can occur when encoding or decoding a HIVE-Lite message.
+/// Errors that can occur when encoding or decoding an Eche-Lite message.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MessageError {
     /// Output buffer is too small for the encoded message.
