@@ -27,11 +27,12 @@ pub const MAX_CANNED_ACKS: usize = 64;
 /// - `0x20-0x2F`: Alerts and emergencies
 /// - `0x30-0x3F`: Requests
 /// - `0xF0-0xFF`: Reserved/custom
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 #[repr(u8)]
 pub enum CannedMessage {
     // ===== Acknowledgments (0x00-0x0F) =====
     /// "Message received" - general acknowledgment
+    #[default]
     Ack = 0x00,
     /// "Will comply" - affirmative acknowledgment
     AckWilco = 0x01,
@@ -159,12 +160,6 @@ impl CannedMessage {
             Self::NeedResupply => "RESUPPLY",
             Self::Custom => "CUSTOM",
         }
-    }
-}
-
-impl Default for CannedMessage {
-    fn default() -> Self {
-        Self::Ack
     }
 }
 
