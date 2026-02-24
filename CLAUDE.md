@@ -9,7 +9,7 @@ hive-lite provides lightweight CRDT primitives for resource-constrained HIVE nod
 This project uses [Radicle](https://radicle.xyz) for decentralized code collaboration.
 
 **Repository ID**: `rad:z4Bhrn1aB8T5vp6Vg42xxvAXx5TJx`
-**Web UI**: https://app.radicle.xyz/nodes/seed.radicle.garden/rad:z4Bhrn1aB8T5vp6Vg42xxvAXx5TJx
+**Web UI**: https://app.radicle.xyz/nodes/seed.toph.so/rad:z4Bhrn1aB8T5vp6Vg42xxvAXx5TJx
 
 ### Quick Reference
 
