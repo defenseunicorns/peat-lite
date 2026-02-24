@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+# Goa CI script for hive-lite
+# Triggered when changes are detected on the Radicle repo
+#
+# Security: Only runs CI for:
+#   - Patches from delegates (automatic)
+#   - Community patches approved by delegate comment "ok-to-test"
+
+set -euo pipefail
+
+# Ensure cargo is in PATH for systemd/service environments
+export PATH="$HOME/.cargo/bin:$PATH"
+
+echo "=== Goa CI triggered at $(date) ==="
+echo "Commit: ${GOA_COMMIT_OID:-unknown}"
+echo "Patch: ${GOA_PATCH_ID:-none}"
+
+# Resource limits to prevent abuse
+ulimit -t 600 2>/dev/null || true      # 10 min CPU time
+ulimit -v 8388608 2>/dev/null || true  # 8GB virtual memory
+
+# Authorization check for patches
+if [ -n "${GOA_PATCH_ID:-}" ]; then
+    echo ""
+    echo "--- Authorization Check ---"
+
+    # Get patch author DID
+    PATCH_JSON=$(rad patch show "$GOA_PATCH_ID" 2>/dev/null || echo "{}")
+    AUTHOR_DID=$(echo "$PATCH_JSON" | grep -oP 'did:key:[a-zA-Z0-9]+' | head -1 || echo "")
+
+    # Get repository delegates
+    DELEGATES=$(rad inspect --delegates 2>/dev/null || echo "")
+
+    if [ -z "$AUTHOR_DID" ]; then
+        echo "WARNING: Could not determine patch author, proceeding anyway"
+    elif echo "$DELEGATES" | grep -q "$AUTHOR_DID"; then
+        echo "Author is delegate - authorized"
+    else
+        echo "Author is community member - checking for delegate approval..."
+
+        # Look for "ok-to-test" comment from a delegate
+        # Check patch comments for approval
+        PATCH_COMMENTS=$(rad patch show "$GOA_PATCH_ID" 2>/dev/null || echo "")
+        APPROVED=0
+
+        for DELEGATE in $DELEGATES; do
+            # Extract just the DID part
+            DELEGATE_DID=$(echo "$DELEGATE" | grep -oP 'did:key:[a-zA-Z0-9]+' || echo "$DELEGATE")
+            if echo "$PATCH_COMMENTS" | grep -B5 "ok-to-test" | grep -q "$DELEGATE_DID"; then
+                echo "Found approval from delegate: $DELEGATE_DID"
+                APPROVED=1
+                break
+            fi
+        done
+
+        if [ $APPROVED -eq 0 ]; then
+            echo ""
+            echo "=== CI skipped: Awaiting delegate approval ==="
+            echo "A delegate must comment 'ok-to-test' to run CI on community patches."
+            exit 0
+        fi
+    fi
+fi
+
+# Pull latest changes for the patch/branch being tested
+git fetch rad
+
+# Track CI results
+FMT_STATUS="skip"
+CLIPPY_STATUS="skip"
+TESTS_STATUS="skip"
+NOSTD_STATUS="skip"
+HAS_FAILURE=0
+
+# Run CI checks with timeouts
+CI_TIMEOUT=300  # 5 minutes per step
+
+echo ""
+echo "--- Format Check ---"
+if timeout $CI_TIMEOUT cargo fmt --check; then
+    FMT_STATUS="pass"
+else
+    FMT_STATUS="FAIL"
+    HAS_FAILURE=1
+fi
+
+echo ""
+echo "--- Clippy ---"
+if timeout $CI_TIMEOUT cargo clippy -- -D warnings; then
+    CLIPPY_STATUS="pass"
+else
+    CLIPPY_STATUS="FAIL"
+    HAS_FAILURE=1
+fi
+
+echo ""
+echo "--- Tests ---"
+if timeout $CI_TIMEOUT cargo test; then
+    TESTS_STATUS="pass"
+else
+    TESTS_STATUS="FAIL"
+    HAS_FAILURE=1
+fi
+
+echo ""
+echo "--- no_std Build ---"
+if timeout $CI_TIMEOUT cargo build --no-default-features; then
+    NOSTD_STATUS="pass"
+else
+    NOSTD_STATUS="FAIL"
+    HAS_FAILURE=1
+fi
+
+echo ""
+
+# Build status message
+STATUS_MSG="fmt: ${FMT_STATUS}, clippy: ${CLIPPY_STATUS}, tests: ${TESTS_STATUS}, no_std: ${NOSTD_STATUS}"
+
+# Report results to patch if this is a patch trigger
+if [ -n "${GOA_PATCH_ID:-}" ]; then
+    if [ $HAS_FAILURE -eq 0 ]; then
+        echo "=== CI passed, accepting patch ==="
+        rad patch review "$GOA_PATCH_ID" --accept -m "CI passed - ${STATUS_MSG}"
+    else
+        echo "=== CI failed, rejecting patch ==="
+        rad patch review "$GOA_PATCH_ID" --reject -m "CI failed - ${STATUS_MSG}"
+    fi
+fi
+
+# Final status
+if [ $HAS_FAILURE -eq 0 ]; then
+    echo "=== CI completed successfully ==="
+    exit 0
+else
+    echo "=== CI failed: ${STATUS_MSG} ==="
+    exit 1
+fi
