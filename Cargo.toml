@@ -1,0 +1,27 @@
+[package]
+name = "hive-lite"
+version = "0.1.0"
+edition = "2021"
+authors = ["(r)evolve - Revolve Team LLC"]
+license = "Apache-2.0"
+description = "Lightweight CRDT primitives for resource-constrained HIVE nodes"
+repository = "https://app.radicle.xyz/nodes/seed.radicle.garden/rad:TODO"
+keywords = ["crdt", "embedded", "mesh", "hive", "tactical"]
+categories = ["no-std", "data-structures", "embedded"]
+readme = "README.md"
+
+[lib]
+crate-type = ["rlib"]
+
+[features]
+default = ["std"]
+std = []
+# no_std by disabling default features: --no-default-features
+
+[dependencies]
+# Minimal dependencies for no_std compatibility
+# heapless provides fixed-capacity collections
+heapless = "0.8"
+
+[dev-dependencies]
+# Only used for testing, not in library
