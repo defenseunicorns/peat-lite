@@ -488,7 +488,12 @@ mod tests {
         let mut store = CannedMessageStore::<16>::new();
         let node = NodeId::new(0x123);
 
-        store.insert(CannedMessageEvent::new(CannedMessage::Ack, node, None, 1000));
+        store.insert(CannedMessageEvent::new(
+            CannedMessage::Ack,
+            node,
+            None,
+            1000,
+        ));
         store.insert(CannedMessageEvent::new(
             CannedMessage::Emergency,
             node,
