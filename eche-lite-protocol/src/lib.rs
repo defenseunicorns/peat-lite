@@ -1,8 +1,8 @@
-//! HIVE-Lite Wire Protocol
+//! Eche-Lite Wire Protocol
 //!
-//! Single source of truth for the HIVE-Lite binary protocol (ADR-035).
+//! Single source of truth for the Eche-Lite binary protocol (ADR-035).
 //! This crate is `#![no_std]` and has zero dependencies, so it can be
-//! consumed by both embedded (`hive-lite`) and hosted (`hive-mesh`) code.
+//! consumed by both embedded (`eche-lite`) and hosted (`eche-mesh`) code.
 
 #![no_std]
 

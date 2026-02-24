@@ -1,6 +1,6 @@
 //! Node capability flags announced during handshake.
 
-/// Capability flags for HIVE nodes.
+/// Capability flags for Eche nodes.
 ///
 /// These flags are announced during handshake so peers know what
 /// features each node supports.
@@ -39,12 +39,12 @@ impl NodeCapabilities {
         Self(0xFFFF)
     }
 
-    /// Create typical HIVE-Lite capabilities.
+    /// Create typical Eche-Lite capabilities.
     pub const fn lite() -> Self {
         Self(Self::PRIMITIVE_CRDT | Self::SENSOR_INPUT)
     }
 
-    /// Create typical HIVE-Full capabilities.
+    /// Create typical Eche-Full capabilities.
     pub const fn full() -> Self {
         Self(
             Self::PERSISTENT_STORAGE

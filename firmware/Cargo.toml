@@ -3,33 +3,33 @@
 [workspace]
 
 [package]
-name = "hive-lite-firmware"
+name = "eche-lite-firmware"
 version = "0.1.0"
 edition = "2021"
-authors = ["(r)evolve Inc."]
-description = "HIVE-Lite ESP32 firmware: mesh protocol for embedded sensors"
+authors = ["Kit Plummer <kitplummer@defenseunicorns.com>"]
+description = "Eche-Lite ESP32 firmware: mesh protocol for embedded sensors"
 license = "Apache-2.0"
 readme = "README.md"
-repository = "https://app.radicle.xyz/nodes/seed.toph.so/rad:z4Bhrn1aB8T5vp6Vg42xxvAXx5TJx"
+repository = "https://github.com/defenseunicorns/eche-lite"
 publish = false
 
 [lib]
-name = "hive_lite_firmware"
+name = "eche_lite_firmware"
 path = "src/lib.rs"
 
 [[bin]]
-name = "hive-lite-esp32"
+name = "eche-lite-esp32"
 path = "src/main.rs"
 required-features = ["esp32"]
 
 [[bin]]
-name = "hive-lite-wifi"
+name = "eche-lite-wifi"
 path = "src/wifi_main.rs"
 required-features = ["wifi"]
 
 [dependencies]
 # Shared wire protocol (no_std, zero-dependency)
-hive-lite-protocol = { path = "../hive-lite-protocol" }
+eche-lite-protocol = { path = "../eche-lite-protocol" }
 
 # Core dependencies (no_std compatible)
 heapless = "0.8"

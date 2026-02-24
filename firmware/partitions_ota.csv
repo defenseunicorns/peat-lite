@@ -1,4 +1,4 @@
-# ESP32 OTA Partition Table for HIVE-Lite
+# ESP32 OTA Partition Table for Eche-Lite
 # Name,   Type, SubType, Offset,   Size,    Flags
 nvs,      data, nvs,     0x9000,   0x5000,
 otadata,  data, ota,     0xE000,   0x2000,

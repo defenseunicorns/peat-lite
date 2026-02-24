@@ -1,0 +1,11 @@
+[package]
+name = "eche-lite-protocol"
+version = "0.2.0"
+edition = "2021"
+authors = ["Kit Plummer <kitplummer@defenseunicorns.com>"]
+description = "Eche-Lite wire protocol: constants, message types, and header codec (no_std, zero-dependency)"
+license = "Apache-2.0"
+repository = "https://github.com/defenseunicorns/eche-lite"
+readme = "README.md"
+categories = ["embedded", "no-std", "network-programming"]
+keywords = ["eche", "mesh", "protocol", "no_std"]

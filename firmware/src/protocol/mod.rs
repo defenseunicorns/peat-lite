@@ -1,7 +1,7 @@
-//! HIVE-Lite Gossip Protocol
+//! Eche-Lite Gossip Protocol
 //!
-//! Lightweight gossip protocol for mesh communication between HIVE nodes.
-//! Compatible with HIVE-Full nodes via capability negotiation.
+//! Lightweight gossip protocol for mesh communication between Eche nodes.
+//! Compatible with Eche-Full nodes via capability negotiation.
 
 pub mod message;
 pub mod peer;
@@ -14,4 +14,4 @@ pub use state::{GossipState, MessageTarget};
 pub use capabilities::NodeCapabilities;
 
 // Re-export canonical protocol constants from the shared crate.
-pub use hive_lite_protocol::{DEFAULT_PORT, MAGIC, MULTICAST_ADDR, PROTOCOL_VERSION};
+pub use eche_lite_protocol::{DEFAULT_PORT, MAGIC, MULTICAST_ADDR, PROTOCOL_VERSION};

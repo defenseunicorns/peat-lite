@@ -1,3 +1,3 @@
-# hive-lite-android ProGuard rules
+# eche-lite-android ProGuard rules
 # Keep UniFFI generated classes
--keep class uniffi.hive_lite_android.** { *; }
+-keep class uniffi.eche_lite_android.** { *; }

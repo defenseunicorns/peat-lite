@@ -1,6 +1,6 @@
-//! OTA (Over-The-Air) firmware update receiver for HIVE-Lite.
+//! OTA (Over-The-Air) firmware update receiver for Eche-Lite.
 //!
-//! Implements a state machine that receives firmware images from a HIVE Full node
+//! Implements a state machine that receives firmware images from an Eche Full node
 //! over the existing UDP transport using the OTA wire protocol (0x10-0x16).
 //!
 //! # Architecture
@@ -15,7 +15,7 @@
 include!(concat!(env!("OUT_DIR"), "/ota_pubkey.rs"));
 
 // Wire-protocol OTA constants from the shared crate.
-pub use hive_lite_protocol::ota::{
+pub use eche_lite_protocol::ota::{
     OTA_CHUNK_DATA_SIZE, OTA_FLAG_SIGNED, OTA_OFFER_SIZE, OTA_OFFER_V2_SIZE,
 };
 
@@ -41,7 +41,7 @@ pub const VALIDATION_OFFSET: u32 = 0x9000;
 pub const VALIDATION_MAGIC: u32 = 0x4F545641;
 
 // OTA result and abort codes from the shared crate.
-pub use hive_lite_protocol::ota::{
+pub use eche_lite_protocol::ota::{
     OTA_ABORT_SESSION_MISMATCH, OTA_ABORT_TIMEOUT, OTA_ABORT_TOO_MANY_RETRIES,
     OTA_ABORT_USER_CANCEL, OTA_RESULT_FLASH_ERROR, OTA_RESULT_HASH_MISMATCH,
     OTA_RESULT_INVALID_OFFER, OTA_RESULT_SIGNATURE_INVALID, OTA_RESULT_SIGNATURE_REQUIRED,

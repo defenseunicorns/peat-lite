@@ -13,9 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! # hive-lite
+//! # eche-lite
 //!
-//! Lightweight CRDT primitives for resource-constrained HIVE nodes.
+//! Lightweight CRDT primitives for resource-constrained Eche nodes.
 //!
 //! This crate provides bounded, `no_std`-compatible data structures suitable
 //! for devices with limited memory (256KB RAM budget), such as:
@@ -43,7 +43,7 @@
 //! ## Example
 //!
 //! ```rust
-//! use hive_lite::{NodeId, CannedMessage, CannedMessageEvent};
+//! use eche_lite::{NodeId, CannedMessage, CannedMessageEvent};
 //!
 //! let my_node = NodeId::new(0x12345678);
 //! let event = CannedMessageEvent::new(

@@ -1,13 +1,13 @@
-//! HIVE-Lite Protocol Messages
+//! Eche-Lite Protocol Messages
 //!
 //! Compact binary message format for gossip protocol.
 
 use super::capabilities::NodeCapabilities;
-use hive_lite_protocol::{Header, decode_header, encode_header, HEADER_SIZE, MAX_PAYLOAD_SIZE};
+use eche_lite_protocol::{Header, decode_header, encode_header, HEADER_SIZE, MAX_PAYLOAD_SIZE};
 use heapless::Vec;
 
 // Re-export shared types so existing `use super::message::*` keeps working.
-pub use hive_lite_protocol::{CrdtType, MAX_PACKET_SIZE, MessageError, MessageType};
+pub use eche_lite_protocol::{CrdtType, MAX_PACKET_SIZE, MessageError, MessageType};
 
 /// Protocol message
 ///
@@ -74,7 +74,7 @@ impl Message {
         ttl_seconds: u32,
     ) -> Option<Self> {
         let mut msg = Self::new(MessageType::Data, node_id, seq_num);
-        msg.flags = hive_lite_protocol::FLAG_HAS_TTL;
+        msg.flags = eche_lite_protocol::FLAG_HAS_TTL;
         msg.payload.push(crdt_type).ok()?;
         msg.payload.extend_from_slice(crdt_data).ok()?;
         msg.payload

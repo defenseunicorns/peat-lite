@@ -1,6 +1,6 @@
-# hive-lite-protocol
+# eche-lite-protocol
 
-Single source of truth for the HIVE-Lite binary wire protocol (ADR-035).
+Single source of truth for the Eche-Lite binary wire protocol (ADR-035).
 
 `#![no_std]`, zero-dependency crate providing:
 
@@ -15,17 +15,17 @@ Single source of truth for the HIVE-Lite binary wire protocol (ADR-035).
 
 ```toml
 [dependencies]
-hive-lite-protocol = "0.1"
+eche-lite-protocol = "0.2"
 ```
 
 ```rust
-use hive_lite_protocol::{MessageType, CrdtType, Header, decode_header, encode_header};
+use eche_lite_protocol::{MessageType, CrdtType, Header, decode_header, encode_header};
 ```
 
-## Part of the HIVE project
+## Part of the Eche project
 
-HIVE is a mesh networking platform for tactical edge computing.
-This crate is consumed by both embedded firmware (`hive-lite`) and
-the hosted mesh library (`hive-mesh`).
+Eche is a mesh networking platform for tactical edge computing.
+This crate is consumed by both embedded firmware (`eche-lite`) and
+the hosted mesh library (`eche-mesh`).
 
 License: Apache-2.0
