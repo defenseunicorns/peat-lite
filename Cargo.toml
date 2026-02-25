@@ -18,7 +18,7 @@ homepage = "https://github.com/defenseunicorns/eche-lite"
 keywords = ["crdt", "embedded", "mesh", "eche", "tactical"]
 categories = ["no-std", "data-structures", "embedded"]
 readme = "README.md"
-exclude = ["android/", "android-ffi/", "firmware/", "Makefile"]
+exclude = ["android/", "android-ffi/", "firmware/", "Makefile", ".goa", "CLAUDE.md", ".github/"]
 
 [lib]
 # rlib for Rust consumers (default)
