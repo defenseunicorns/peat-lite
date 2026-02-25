@@ -28,8 +28,8 @@ path = "src/wifi_main.rs"
 required-features = ["wifi"]
 
 [dependencies]
-# Shared wire protocol (no_std, zero-dependency)
-eche-lite-protocol = { path = "../eche-lite-protocol" }
+# Shared wire protocol + CRDT primitives (no_std)
+eche-lite = { path = "..", default-features = false }
 
 # Core dependencies (no_std compatible)
 heapless = "0.8"
