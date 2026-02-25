@@ -33,7 +33,7 @@ const SSID: &str = env!("SSID");
 const PASSWORD: &str = env!("PWD");
 
 // UDP port — canonical value from the shared protocol crate.
-use eche_lite_protocol::DEFAULT_PORT as ECHE_UDP_PORT;
+use eche_lite::DEFAULT_PORT as ECHE_UDP_PORT;
 
 // Display support
 #[cfg(feature = "m5stack-core2")]
@@ -698,13 +698,13 @@ fn main() -> ! {
     // TTL trackers for each CRDT (48 bytes total: 4 × 12 bytes)
     let boot_ms = Instant::now().duration_since_epoch().as_millis() as u64;
     let mut ttl_button = CrdtTtl::new(
-        eche_lite_protocol::DEFAULT_TTL_G_COUNTER, boot_ms);
+        eche_lite::DEFAULT_TTL_G_COUNTER, boot_ms);
     let mut ttl_activity = CrdtTtl::new(
-        eche_lite_protocol::DEFAULT_TTL_LWW_REGISTER, boot_ms);
+        eche_lite::DEFAULT_TTL_LWW_REGISTER, boot_ms);
     let mut ttl_posture = CrdtTtl::new(
-        eche_lite_protocol::DEFAULT_TTL_LWW_REGISTER, boot_ms);
+        eche_lite::DEFAULT_TTL_LWW_REGISTER, boot_ms);
     let mut ttl_battery = CrdtTtl::new(
-        eche_lite_protocol::DEFAULT_TTL_LWW_REGISTER, boot_ms);
+        eche_lite::DEFAULT_TTL_LWW_REGISTER, boot_ms);
 
     // Sensor reading state
     #[cfg(feature = "m5stack-core2")]
@@ -1030,7 +1030,7 @@ fn main() -> ! {
                         MessageType::Data => {
                             // Strip TTL suffix before parsing CRDT payload
                             let (crdt_payload, _rx_ttl) =
-                                eche_lite_protocol::strip_ttl(msg.flags, &msg.payload);
+                                eche_lite::strip_ttl(msg.flags, &msg.payload);
 
                             if !crdt_payload.is_empty() {
                                 let crdt_type = crdt_payload[0];

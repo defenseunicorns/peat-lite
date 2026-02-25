@@ -9,9 +9,9 @@
 //! └──────────┴─────────┴──────────┴──────────┴──────────┴──────────────┘
 //! ```
 
-use crate::constants::{HEADER_SIZE, MAGIC, PROTOCOL_VERSION};
-use crate::error::MessageError;
-use crate::message_type::MessageType;
+use super::constants::{HEADER_SIZE, MAGIC, PROTOCOL_VERSION};
+use super::error::MessageError;
+use super::message_type::MessageType;
 
 /// Decoded header fields.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

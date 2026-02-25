@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-eche-lite provides lightweight CRDT primitives for resource-constrained Eche nodes. It is a **leaf crate** with no dependencies on the Eche ecosystem, designed for devices with 256KB RAM budget.
+eche-lite provides lightweight CRDT primitives and wire protocol for resource-constrained Eche nodes. It is a **leaf crate** with no dependencies on the Eche ecosystem, designed for devices with 256KB RAM budget. The `protocol` submodule is the single source of truth for the Eche-Lite binary wire protocol (ADR-035).
 
 ## Build Commands
 
@@ -64,6 +64,14 @@ CannedMessageEvent uses a 22-byte wire format:
 | `src/lww.rs` | LwwRegister, Position |
 | `src/counter.rs` | GCounter (grow-only counter) |
 | `src/wire.rs` | Wire format constants and errors |
+| `src/protocol/mod.rs` | Protocol re-exports (wire protocol types) |
+| `src/protocol/constants.rs` | Magic bytes, header size, port, multicast |
+| `src/protocol/header.rs` | Header encode/decode (16-byte fixed) |
+| `src/protocol/message_type.rs` | MessageType enum (Announce, Data, OTA, etc.) |
+| `src/protocol/capabilities.rs` | NodeCapabilities bitflags |
+| `src/protocol/crdt_type.rs` | CrdtType enum |
+| `src/protocol/ota.rs` | OTA firmware update constants |
+| `src/protocol/ttl.rs` | TTL append/strip helpers |
 
 ## Related Repositories
 

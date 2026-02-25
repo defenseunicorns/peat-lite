@@ -49,6 +49,22 @@ assert_eq!(bytes[0], 0xAF);  // CannedMessage marker
 0xF0-0xFF  Reserved          Custom/application-specific
 ```
 
+## Wire Protocol
+
+The `protocol` submodule provides the canonical Eche-Lite binary wire protocol (ADR-035):
+
+- 16-byte fixed header (magic, version, type, flags, node ID, seq num)
+- Message types: Announce, Heartbeat, Data, Query, Ack, Leave, OTA (0x10-0x16)
+- CRDT types: LwwRegister, GCounter, PnCounter, OrSet
+- Node capability flags for Full/Lite negotiation
+- TTL suffix support for data expiry
+
+All protocol types are re-exported at the crate root for ergonomic access:
+
+```rust
+use eche_lite::{MessageType, Header, encode_header, NodeCapabilities};
+```
+
 ## Features
 
 - **`std`** (default): Standard library support
@@ -57,7 +73,7 @@ assert_eq!(bytes[0], 0xAF);  // CannedMessage marker
 ```toml
 # Cargo.toml - embedded usage
 [dependencies]
-eche-lite = { version = "0.1", default-features = false }
+eche-lite = { version = "0.2", default-features = false }
 ```
 
 ## Building
