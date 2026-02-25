@@ -1,10 +1,8 @@
 //! Eche-Lite Wire Protocol
 //!
 //! Single source of truth for the Eche-Lite binary protocol (ADR-035).
-//! This crate is `#![no_std]` and has zero dependencies, so it can be
-//! consumed by both embedded (`eche-lite`) and hosted (`eche-mesh`) code.
-
-#![no_std]
+//! This module is `no_std`-compatible and has zero additional dependencies,
+//! so it can be consumed by both embedded (`eche-lite`) and hosted (`eche-mesh`) code.
 
 pub mod capabilities;
 pub mod constants;

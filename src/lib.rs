@@ -64,6 +64,7 @@ pub mod canned;
 pub mod counter;
 pub mod lww;
 pub mod node_id;
+pub mod protocol;
 pub mod wire;
 
 // Re-export main types at crate root
@@ -76,4 +77,12 @@ pub use node_id::NodeId;
 pub use wire::{
     WireError, CANNED_ACK_EVENT_MAX_SIZE, CANNED_MESSAGE_MARKER, CANNED_MESSAGE_SIGNED_SIZE,
     CANNED_MESSAGE_UNSIGNED_SIZE, SIGNATURE_SIZE,
+};
+
+// Re-export protocol types at crate root for ergonomic access
+pub use protocol::constants::*;
+pub use protocol::ota;
+pub use protocol::{
+    append_ttl, decode_header, default_ttl_for_crdt, encode_header, strip_ttl, CrdtType, Header,
+    MessageError, MessageType, NodeCapabilities,
 };

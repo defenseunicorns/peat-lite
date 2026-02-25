@@ -7,11 +7,11 @@
 //! payloads are self-delimiting (LwwRegister has `value_len`, GCounter
 //! has `num_entries`).
 
-use crate::constants::{
+use super::constants::{
     DEFAULT_TTL_G_COUNTER, DEFAULT_TTL_LWW_REGISTER, DEFAULT_TTL_PN_COUNTER, FLAG_HAS_TTL,
     TTL_NEVER_EXPIRES, TTL_SUFFIX_SIZE,
 };
-use crate::crdt_type::CrdtType;
+use super::crdt_type::CrdtType;
 
 /// Append a 4-byte LE TTL suffix to `payload[..payload_len]`.
 ///

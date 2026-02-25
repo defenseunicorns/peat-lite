@@ -143,7 +143,7 @@ impl GossipState {
 
         // Strip TTL suffix if FLAG_HAS_TTL is set.
         let (crdt_payload, ttl_seconds) =
-            eche_lite_protocol::strip_ttl(msg.flags, &msg.payload);
+            eche_lite::strip_ttl(msg.flags, &msg.payload);
 
         if crdt_payload.is_empty() {
             return HandleResult::Error(GossipError::InvalidPayload);
