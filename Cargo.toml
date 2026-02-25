@@ -2,14 +2,13 @@
 resolver = "2"
 members = [
     ".",
-    "eche-lite-protocol",
 ]
 # Firmware requires ESP32 toolchain — build separately
 exclude = ["firmware", "android/", "android-ffi/"]
 
 [package]
 name = "eche-lite"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Kit Plummer <kitplummer@defenseunicorns.com>"]
 license = "Apache-2.0"
