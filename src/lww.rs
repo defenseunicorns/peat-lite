@@ -1,4 +1,4 @@
-// Copyright (c) 2025-2026 (r)evolve - Revolve Team LLC
+// Copyright (c) 2025-2026 Defense Unicorns, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
 //! Last-Writer-Wins Register CRDT.
