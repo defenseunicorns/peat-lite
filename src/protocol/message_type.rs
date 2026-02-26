@@ -1,4 +1,4 @@
-//! Eche-Lite message type identifiers.
+//! Peat-Lite message type identifiers.
 
 /// Message types for the gossip protocol.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

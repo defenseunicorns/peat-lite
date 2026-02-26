@@ -8,7 +8,7 @@ assignees: ''
 
 ## Environment
 
-- **eche-lite version**:
+- **peat-lite version**:
 - **Rust version** (`rustc --version`):
 - **Target** (e.g., x86_64-unknown-linux-gnu, xtensa-esp32-none-elf):
 - **OS/Platform**:

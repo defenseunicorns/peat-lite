@@ -2,14 +2,14 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in eche-lite, please report it responsibly. **Do not open a public GitHub issue for security vulnerabilities.**
+If you discover a security vulnerability in peat-lite, please report it responsibly. **Do not open a public GitHub issue for security vulnerabilities.**
 
 ### How to Report
 
 You have two options:
 
 1. **Email**: Send a detailed report to [security@defenseunicorns.com](mailto:security@defenseunicorns.com)
-2. **GitHub Security Advisories**: Use the [private vulnerability reporting](https://github.com/defenseunicorns/eche-lite/security/advisories/new) feature on this repository
+2. **GitHub Security Advisories**: Use the [private vulnerability reporting](https://github.com/defenseunicorns/peat-lite/security/advisories/new) feature on this repository
 
 ### What to Include
 
@@ -38,7 +38,7 @@ You have two options:
 
 ## Security Best Practices
 
-eche-lite is designed for resource-constrained environments. When integrating:
+peat-lite is designed for resource-constrained environments. When integrating:
 
 - Validate all wire protocol inputs at trust boundaries
 - Use the provided header codec rather than manual parsing

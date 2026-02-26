@@ -1,10 +1,10 @@
-# eche-lite
+# peat-lite
 
-Lightweight CRDT primitives for resource-constrained Eche nodes.
+Lightweight CRDT primitives for resource-constrained Peat nodes.
 
 ## Overview
 
-eche-lite provides bounded, `no_std`-compatible data structures suitable for devices with limited memory (256KB RAM budget):
+peat-lite provides bounded, `no_std`-compatible data structures suitable for devices with limited memory (256KB RAM budget):
 
 - WearTAK on Samsung watches
 - ESP32 sensor nodes
@@ -24,7 +24,7 @@ eche-lite provides bounded, `no_std`-compatible data structures suitable for dev
 ## Usage
 
 ```rust
-use eche_lite::{NodeId, CannedMessage, CannedMessageEvent};
+use peat_lite::{NodeId, CannedMessage, CannedMessageEvent};
 
 let my_node = NodeId::new(0x12345678);
 let event = CannedMessageEvent::new(
@@ -51,7 +51,7 @@ assert_eq!(bytes[0], 0xAF);  // CannedMessage marker
 
 ## Wire Protocol
 
-The `protocol` submodule provides the canonical Eche-Lite binary wire protocol (ADR-035):
+The `protocol` submodule provides the canonical Peat-Lite binary wire protocol (ADR-035):
 
 - 16-byte fixed header (magic, version, type, flags, node ID, seq num)
 - Message types: Announce, Heartbeat, Data, Query, Ack, Leave, OTA (0x10-0x16)
@@ -62,7 +62,7 @@ The `protocol` submodule provides the canonical Eche-Lite binary wire protocol (
 All protocol types are re-exported at the crate root for ergonomic access:
 
 ```rust
-use eche_lite::{MessageType, Header, encode_header, NodeCapabilities};
+use peat_lite::{MessageType, Header, encode_header, NodeCapabilities};
 ```
 
 ## Features
@@ -73,7 +73,7 @@ use eche_lite::{MessageType, Header, encode_header, NodeCapabilities};
 ```toml
 # Cargo.toml - embedded usage
 [dependencies]
-eche-lite = { version = "0.2", default-features = false }
+peat-lite = { version = "0.2", default-features = false }
 ```
 
 ## Building
@@ -95,7 +95,7 @@ Apache-2.0
 
 ## OTA Updates (ESP32)
 
-eche-lite supports over-the-air firmware updates on ESP32 targets with A/B partitioning:
+peat-lite supports over-the-air firmware updates on ESP32 targets with A/B partitioning:
 
 - Streaming SHA256 verification during transfer
 - Ed25519 signature verification (optional, compile-time)
@@ -106,5 +106,5 @@ Build with OTA support:
 
 ```bash
 SSID="your-ssid" PWD="your-password" cargo +esp build --release \
-  --features m5stack-core2-wifi --target xtensa-esp32-none-elf --bin eche-lite-wifi
+  --features m5stack-core2-wifi --target xtensa-esp32-none-elf --bin peat-lite-wifi
 ```

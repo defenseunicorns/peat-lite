@@ -1,14 +1,14 @@
 // Copyright (c) 2025-2026 (r)evolve - Revolve Team LLC
 // SPDX-License-Identifier: Apache-2.0
 
-//! Android FFI crate for eche-lite.
+//! Android FFI crate for peat-lite.
 //!
 //! This crate provides UniFFI bindings for Android/Kotlin.
 //! It wraps the core no_std types with std-based alternatives.
 
-use eche_lite::canned::{CannedMessage, CannedMessageAckEvent, CannedMessageEvent};
-use eche_lite::node_id::NodeId;
-use eche_lite::wire::CANNED_MESSAGE_MARKER;
+use peat_lite::canned::{CannedMessage, CannedMessageAckEvent, CannedMessageEvent};
+use peat_lite::node_id::NodeId;
+use peat_lite::wire::CANNED_MESSAGE_MARKER;
 
 // UniFFI scaffolding - generates the C FFI layer
 uniffi::setup_scaffolding!();

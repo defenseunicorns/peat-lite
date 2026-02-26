@@ -1,10 +1,10 @@
 //! Node Capabilities
 //!
-//! Re-exports `NodeCapabilities` from `eche_lite`.
+//! Re-exports `NodeCapabilities` from `peat_lite`.
 //! Capability flags announced during handshake to enable graceful
 //! degradation between Full and Lite nodes.
 
-pub use eche_lite::NodeCapabilities;
+pub use peat_lite::NodeCapabilities;
 
 #[cfg(test)]
 mod tests {
