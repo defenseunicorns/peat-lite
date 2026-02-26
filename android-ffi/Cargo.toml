@@ -1,22 +1,22 @@
 [package]
-name = "eche-lite-android"
+name = "peat-lite-android"
 version = "0.0.3"
 edition = "2021"
 authors = ["(r)evolve - Revolve Team LLC"]
 license = "Apache-2.0"
-description = "Android/Kotlin bindings for eche-lite via UniFFI"
+description = "Android/Kotlin bindings for peat-lite via UniFFI"
 publish = false
 
 [lib]
 crate-type = ["cdylib"]
-name = "eche_lite_android"
+name = "peat_lite_android"
 
 [[bin]]
 name = "uniffi-bindgen"
 path = "src/uniffi-bindgen.rs"
 
 [dependencies]
-eche-lite = { path = "..", features = ["std"] }
+peat-lite = { path = "..", features = ["std"] }
 uniffi = { version = "0.28", features = ["cli"] }
 
 [build-dependencies]

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Goa CI script for eche-lite
+# Goa CI script for peat-lite
 # Triggered when changes are detected on the Radicle repo
 #
 # Security: Only runs CI for:

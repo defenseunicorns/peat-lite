@@ -1,4 +1,4 @@
-//! Eche-Lite packet header codec.
+//! Peat-Lite packet header codec.
 //!
 //! The header is a fixed 16-byte prefix on every packet:
 //!

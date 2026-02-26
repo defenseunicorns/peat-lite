@@ -20,7 +20,7 @@ use heapless::FnvIndexMap;
 /// # Example
 ///
 /// ```rust
-/// use eche_lite::{GCounter, NodeId};
+/// use peat_lite::{GCounter, NodeId};
 ///
 /// let node1 = NodeId::new(1);
 /// let node2 = NodeId::new(2);
