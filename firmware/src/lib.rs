@@ -1,10 +1,10 @@
-//! Eche-Lite: Resource-Constrained Mesh Protocol
+//! Peat-Lite: Resource-Constrained Mesh Protocol
 //!
-//! A lightweight implementation of the Eche protocol for embedded devices.
+//! A lightweight implementation of the Peat protocol for embedded devices.
 //!
 //! # Features
 //!
-//! - **First-class mesh participation** - Same protocol as Eche-Full
+//! - **First-class mesh participation** - Same protocol as Peat-Full
 //! - **Primitive CRDTs** - LWW-Register, G-Counter, PN-Counter
 //! - **Ephemeral operation** - No persistent storage required
 //! - **Capability negotiation** - Graceful degradation with Full nodes
@@ -12,7 +12,7 @@
 //! # Example
 //!
 //! ```ignore
-//! use eche_lite_firmware::prelude::*;
+//! use peat_lite_firmware::prelude::*;
 //!
 //! // Create a new node
 //! let node_id = 0x12345678;

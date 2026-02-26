@@ -1,8 +1,8 @@
-//! Eche-Lite Wire Protocol
+//! Peat-Lite Wire Protocol
 //!
-//! Single source of truth for the Eche-Lite binary protocol (ADR-035).
+//! Single source of truth for the Peat-Lite binary protocol (ADR-035).
 //! This module is `no_std`-compatible and has zero additional dependencies,
-//! so it can be consumed by both embedded (`eche-lite`) and hosted (`eche-mesh`) code.
+//! so it can be consumed by both embedded (`peat-lite`) and hosted (`peat-mesh`) code.
 
 pub mod capabilities;
 pub mod constants;

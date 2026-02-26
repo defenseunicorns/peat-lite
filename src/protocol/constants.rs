@@ -1,15 +1,15 @@
 //! Protocol-level constants.
 
-/// Magic bytes identifying an Eche-Lite packet: ASCII "ECHE".
-pub const MAGIC: [u8; 4] = [0x45, 0x43, 0x48, 0x45];
+/// Magic bytes identifying a Peat-Lite packet: ASCII "PEAT".
+pub const MAGIC: [u8; 4] = [0x50, 0x45, 0x41, 0x54];
 
 /// Protocol version for compatibility checking.
 pub const PROTOCOL_VERSION: u8 = 1;
 
-/// Default UDP port for Eche-Lite communication.
+/// Default UDP port for Peat-Lite communication.
 ///
-/// This is the canonical deployed value used by both eche-lite firmware
-/// and eche-mesh transport.
+/// This is the canonical deployed value used by both peat-lite firmware
+/// and peat-mesh transport.
 pub const DEFAULT_PORT: u16 = 5555;
 
 /// Default multicast address for discovery: 239.255.72.76 (H.L).

@@ -17,7 +17,7 @@ use crate::node_id::NodeId;
 /// # Example
 ///
 /// ```rust
-/// use eche_lite::{LwwRegister, NodeId};
+/// use peat_lite::{LwwRegister, NodeId};
 ///
 /// let mut reg = LwwRegister::new(42i32, NodeId::new(1), 1000);
 ///

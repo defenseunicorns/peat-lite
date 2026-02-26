@@ -3,33 +3,33 @@
 [workspace]
 
 [package]
-name = "eche-lite-firmware"
+name = "peat-lite-firmware"
 version = "0.1.0"
 edition = "2021"
 authors = ["Kit Plummer <kitplummer@defenseunicorns.com>"]
-description = "Eche-Lite ESP32 firmware: mesh protocol for embedded sensors"
+description = "Peat-Lite ESP32 firmware: mesh protocol for embedded sensors"
 license = "Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/defenseunicorns/eche-lite"
+repository = "https://github.com/defenseunicorns/peat-lite"
 publish = false
 
 [lib]
-name = "eche_lite_firmware"
+name = "peat_lite_firmware"
 path = "src/lib.rs"
 
 [[bin]]
-name = "eche-lite-esp32"
+name = "peat-lite-esp32"
 path = "src/main.rs"
 required-features = ["esp32"]
 
 [[bin]]
-name = "eche-lite-wifi"
+name = "peat-lite-wifi"
 path = "src/wifi_main.rs"
 required-features = ["wifi"]
 
 [dependencies]
 # Shared wire protocol + CRDT primitives (no_std)
-eche-lite = { path = "..", default-features = false }
+peat-lite = { path = "..", default-features = false }
 
 # Core dependencies (no_std compatible)
 heapless = "0.8"

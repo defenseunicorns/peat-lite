@@ -1,6 +1,6 @@
-//! Eche-Lite M5Stack Core2 Demo
+//! Peat-Lite M5Stack Core2 Demo
 //!
-//! Demonstrates Eche-Lite running on ESP32 with display output.
+//! Demonstrates Peat-Lite running on ESP32 with display output.
 
 #![no_std]
 #![no_main]
@@ -17,8 +17,8 @@ fn panic(_: &core::panic::PanicInfo) -> ! {
 // Required for ESP-IDF bootloader compatibility
 esp_bootloader_esp_idf::esp_app_desc!();
 
-// Import Eche-Lite
-use eche_lite_firmware::prelude::*;
+// Import Peat-Lite
+use peat_lite_firmware::prelude::*;
 
 // Display support (only when m5stack-core2 feature is enabled)
 #[cfg(feature = "m5stack-core2")]
@@ -85,7 +85,7 @@ fn main() -> ! {
     let peripherals = esp_hal::init(config);
 
     esp_println::println!("========================================");
-    esp_println::println!("  Eche-Lite v{}", env!("CARGO_PKG_VERSION"));
+    esp_println::println!("  Peat-Lite v{}", env!("CARGO_PKG_VERSION"));
     esp_println::println!("  Protocol version: {}", PROTOCOL_VERSION);
     esp_println::println!("========================================");
 
@@ -131,11 +131,11 @@ fn main() -> ! {
         // Clear to dark blue background
         disp.clear(Rgb565::new(0, 0, 8)).unwrap();
 
-        // Draw Eche-Lite banner
+        // Draw Peat-Lite banner
         let title_style = MonoTextStyle::new(&FONT_10X20, Rgb565::new(31, 63, 0)); // Yellow-green
         let text_style = MonoTextStyle::new(&FONT_6X10, Rgb565::WHITE);
 
-        Text::new("Eche-Lite", Point::new(100, 30), title_style)
+        Text::new("Peat-Lite", Point::new(100, 30), title_style)
             .draw(&mut disp)
             .unwrap();
 

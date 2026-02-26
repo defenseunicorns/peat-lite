@@ -1,7 +1,7 @@
-//! Eche-Lite Gossip Protocol
+//! Peat-Lite Gossip Protocol
 //!
-//! Lightweight gossip protocol for mesh communication between Eche nodes.
-//! Compatible with Eche-Full nodes via capability negotiation.
+//! Lightweight gossip protocol for mesh communication between Peat nodes.
+//! Compatible with Peat-Full nodes via capability negotiation.
 
 pub mod message;
 pub mod peer;
@@ -14,4 +14,4 @@ pub use state::{GossipState, MessageTarget};
 pub use capabilities::NodeCapabilities;
 
 // Re-export canonical protocol constants from the shared crate.
-pub use eche_lite::{DEFAULT_PORT, MAGIC, MULTICAST_ADDR, PROTOCOL_VERSION};
+pub use peat_lite::{DEFAULT_PORT, MAGIC, MULTICAST_ADDR, PROTOCOL_VERSION};

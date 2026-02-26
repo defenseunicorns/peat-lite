@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 (r)evolve - Revolve Team LLC
 // SPDX-License-Identifier: Apache-2.0
 
-rootProject.name = "eche-lite-android"
+rootProject.name = "peat-lite-android"
 
 pluginManagement {
     repositories {

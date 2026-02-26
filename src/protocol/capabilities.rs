@@ -1,6 +1,6 @@
 //! Node capability flags announced during handshake.
 
-/// Capability flags for Eche nodes.
+/// Capability flags for Peat nodes.
 ///
 /// These flags are announced during handshake so peers know what
 /// features each node supports.
@@ -39,12 +39,12 @@ impl NodeCapabilities {
         Self(0xFFFF)
     }
 
-    /// Create typical Eche-Lite capabilities.
+    /// Create typical Peat-Lite capabilities.
     pub const fn lite() -> Self {
         Self(Self::PRIMITIVE_CRDT | Self::SENSOR_INPUT)
     }
 
-    /// Create typical Eche-Full capabilities.
+    /// Create typical Peat-Full capabilities.
     pub const fn full() -> Self {
         Self(
             Self::PERSISTENT_STORAGE

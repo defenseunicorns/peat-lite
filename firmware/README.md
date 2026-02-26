@@ -1,16 +1,16 @@
-# Eche-Lite
+# Peat-Lite
 
-Resource-constrained Eche protocol implementation for embedded sensors.
+Resource-constrained Peat protocol implementation for embedded sensors.
 
 ## Overview
 
-Eche-Lite enables ESP32-based devices (M5Stack Core2, Waveshare UGV Beast ESP32 controller, etc.) to participate as **first-class mesh members** in a Eche network. Unlike bridge-based approaches, Lite nodes speak the same protocol as Full nodes with capability negotiation.
+Peat-Lite enables ESP32-based devices (M5Stack Core2, Waveshare UGV Beast ESP32 controller, etc.) to participate as **first-class mesh members** in a Peat network. Unlike bridge-based approaches, Lite nodes speak the same protocol as Full nodes with capability negotiation.
 
-See [ADR-035: Eche-Lite Embedded Sensor Nodes](../docs/adr/035-hive-lite-embedded-nodes.md) for architecture details.
+See [ADR-035: Peat-Lite Embedded Sensor Nodes](../docs/adr/035-hive-lite-embedded-nodes.md) for architecture details.
 
 ## Features
 
-- **First-class mesh participation** - Same protocol as Eche-Full, no bridging required
+- **First-class mesh participation** - Same protocol as Peat-Full, no bridging required
 - **Primitive CRDTs** - LWW-Register, G-Counter, PN-Counter for sensor data
 - **Ephemeral operation** - No persistent storage required
 - **Capability negotiation** - Announces what it supports, Full nodes adapt
@@ -26,7 +26,7 @@ See [ADR-035: Eche-Lite Embedded Sensor Nodes](../docs/adr/035-hive-lite-embedde
 
 ### Secondary: ESP32 Dev Boards
 - Any ESP32 with WiFi capability
-- Minimum 256KB RAM available for Eche-Lite
+- Minimum 256KB RAM available for Peat-Lite
 
 ## Building
 
@@ -58,7 +58,7 @@ espflash flash --release --monitor
 
 ```
 ┌─────────────────────────────────────────┐
-│            Eche-Lite Node               │
+│            Peat-Lite Node               │
 ├─────────────────────────────────────────┤
 │  ┌─────────────────────────────────┐    │
 │  │      Application Layer          │    │
@@ -101,7 +101,7 @@ espflash flash --release --monitor
 
 ## Protocol Compatibility
 
-Eche-Lite speaks the same wire protocol as Eche-Full. Differences are handled via capability flags:
+Peat-Lite speaks the same wire protocol as Peat-Full. Differences are handled via capability flags:
 
 ```rust
 bitflags! {

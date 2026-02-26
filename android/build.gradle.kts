@@ -12,7 +12,7 @@ group = "com.defenseunicorns"
 version = "0.0.4"  // Signed CannedMessage support
 
 android {
-    namespace = "com.defenseunicorns.eche.lite"
+    namespace = "com.defenseunicorns.peat.lite"
     compileSdk = 34
 
     defaultConfig {
@@ -88,26 +88,26 @@ tasks.register<Exec>("buildNativeLibs") {
 
     commandLine("bash", "-c", """
         set -e
-        echo "Building eche-lite-android native libraries from: $(pwd)"
+        echo "Building peat-lite-android native libraries from: $(pwd)"
         cd android-ffi
 
         # Build for arm64-v8a (modern Android devices)
         echo "Building for aarch64-linux-android (arm64-v8a)..."
         cargo build --release --target aarch64-linux-android
         mkdir -p ../android/src/main/jniLibs/arm64-v8a
-        cp ../target/aarch64-linux-android/release/libeche_lite_android.so ../android/src/main/jniLibs/arm64-v8a/
+        cp ../target/aarch64-linux-android/release/libpeat_lite_android.so ../android/src/main/jniLibs/arm64-v8a/
 
         # Build for armeabi-v7a (older devices)
         echo "Building for armv7-linux-androideabi (armeabi-v7a)..."
         cargo build --release --target armv7-linux-androideabi
         mkdir -p ../android/src/main/jniLibs/armeabi-v7a
-        cp ../target/armv7-linux-androideabi/release/libeche_lite_android.so ../android/src/main/jniLibs/armeabi-v7a/
+        cp ../target/armv7-linux-androideabi/release/libpeat_lite_android.so ../android/src/main/jniLibs/armeabi-v7a/
 
         # Build for x86_64 (emulators)
         echo "Building for x86_64-linux-android (x86_64)..."
         cargo build --release --target x86_64-linux-android
         mkdir -p ../android/src/main/jniLibs/x86_64
-        cp ../target/x86_64-linux-android/release/libeche_lite_android.so ../android/src/main/jniLibs/x86_64/
+        cp ../target/x86_64-linux-android/release/libpeat_lite_android.so ../android/src/main/jniLibs/x86_64/
 
         echo ""
         echo "Native libraries built successfully!"
@@ -131,7 +131,7 @@ tasks.register<Exec>("generateBindings") {
 
         # Generate bindings using uniffi-bindgen
         cargo run --bin uniffi-bindgen generate \
-            --library ../target/aarch64-linux-android/release/libeche_lite_android.so \
+            --library ../target/aarch64-linux-android/release/libpeat_lite_android.so \
             --language kotlin \
             --out-dir ../android/src/main/java
 
@@ -145,9 +145,9 @@ tasks.register<Delete>("cleanNativeLibs") {
     group = "build"
 
     delete(
-        "src/main/jniLibs/arm64-v8a/libeche_lite_android.so",
-        "src/main/jniLibs/armeabi-v7a/libeche_lite_android.so",
-        "src/main/jniLibs/x86_64/libeche_lite_android.so"
+        "src/main/jniLibs/arm64-v8a/libpeat_lite_android.so",
+        "src/main/jniLibs/armeabi-v7a/libpeat_lite_android.so",
+        "src/main/jniLibs/x86_64/libpeat_lite_android.so"
     )
 }
 
@@ -166,15 +166,15 @@ afterEvaluate {
         publications {
             register<MavenPublication>("release") {
                 groupId = "com.defenseunicorns"
-                artifactId = "eche-lite"
+                artifactId = "peat-lite"
                 version = project.version.toString()
 
                 from(components["release"])
 
                 pom {
-                    name.set("Eche Lite Android")
-                    description.set("Lightweight CRDT primitives for Eche Protocol - Android library by Defense Unicorns")
-                    url.set("https://github.com/defenseunicorns/eche-lite")
+                    name.set("Peat Lite Android")
+                    description.set("Lightweight CRDT primitives for Peat Protocol - Android library by Defense Unicorns")
+                    url.set("https://github.com/defenseunicorns/peat-lite")
 
                     licenses {
                         license {
@@ -192,9 +192,9 @@ afterEvaluate {
                     }
 
                     scm {
-                        connection.set("scm:git:git://github.com/defenseunicorns/eche-lite.git")
-                        developerConnection.set("scm:git:ssh://github.com/defenseunicorns/eche-lite.git")
-                        url.set("https://github.com/defenseunicorns/eche-lite")
+                        connection.set("scm:git:git://github.com/defenseunicorns/peat-lite.git")
+                        developerConnection.set("scm:git:ssh://github.com/defenseunicorns/peat-lite.git")
+                        url.set("https://github.com/defenseunicorns/peat-lite")
                     }
                 }
             }
@@ -222,7 +222,7 @@ tasks.register<Zip>("createMavenCentralBundle") {
     dependsOn("publishReleasePublicationToLocalRepository")
 
     from(layout.buildDirectory.dir("repo"))
-    archiveFileName.set("eche-lite-${project.version}-bundle.zip")
+    archiveFileName.set("peat-lite-${project.version}-bundle.zip")
     destinationDirectory.set(layout.buildDirectory.dir("bundle"))
 }
 
@@ -233,7 +233,7 @@ tasks.register<Exec>("publishToMavenCentral") {
 
     dependsOn("createMavenCentralBundle")
 
-    val bundleFile = layout.buildDirectory.file("bundle/eche-lite-${project.version}-bundle.zip")
+    val bundleFile = layout.buildDirectory.file("bundle/peat-lite-${project.version}-bundle.zip")
     val username = project.findProperty("sonatypeUsername") as String? ?: System.getenv("SONATYPE_USERNAME") ?: ""
     val password = project.findProperty("sonatypePassword") as String? ?: System.getenv("SONATYPE_PASSWORD") ?: ""
 

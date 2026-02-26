@@ -1,3 +1,3 @@
-# eche-lite-android ProGuard rules
+# peat-lite-android ProGuard rules
 # Keep UniFFI generated classes
--keep class uniffi.eche_lite_android.** { *; }
+-keep class uniffi.peat_lite_android.** { *; }

@@ -1,6 +1,6 @@
-# Contributing to eche-lite
+# Contributing to peat-lite
 
-Thank you for your interest in contributing to eche-lite! This document provides guidelines and workflows for contributing.
+Thank you for your interest in contributing to peat-lite! This document provides guidelines and workflows for contributing.
 
 ## Getting Started
 
@@ -11,15 +11,15 @@ Thank you for your interest in contributing to eche-lite! This document provides
 
 ## Development Setup
 
-eche-lite is a Rust crate targeting both `std` and `no_std` environments.
+peat-lite is a Rust crate targeting both `std` and `no_std` environments.
 
 ```bash
 # Install Rust (if needed)
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Clone and build
-git clone https://github.com/defenseunicorns/eche-lite.git
-cd eche-lite
+git clone https://github.com/defenseunicorns/peat-lite.git
+cd peat-lite
 cargo build
 ```
 

@@ -1,8 +1,8 @@
-# Claude Code Project Guide - eche-lite
+# Claude Code Project Guide - peat-lite
 
 ## Project Overview
 
-eche-lite provides lightweight CRDT primitives and wire protocol for resource-constrained Eche nodes. It is a **leaf crate** with no dependencies on the Eche ecosystem, designed for devices with 256KB RAM budget. The `protocol` submodule is the single source of truth for the Eche-Lite binary wire protocol (ADR-035).
+peat-lite provides lightweight CRDT primitives and wire protocol for resource-constrained Peat nodes. It is a **leaf crate** with no dependencies on the Peat ecosystem, designed for devices with 256KB RAM budget. The `protocol` submodule is the single source of truth for the Peat-Lite binary wire protocol (ADR-035).
 
 ## Build Commands
 
@@ -75,5 +75,5 @@ CannedMessageEvent uses a 22-byte wire format:
 
 ## Related Repositories
 
-- **eche-btle**: BLE mesh transport (optionally depends on eche-lite)
-- **eche-mesh**: Full Eche mesh library (uses eche-lite for embedded nodes)
+- **peat-btle**: BLE mesh transport (optionally depends on peat-lite)
+- **peat-mesh**: Full Peat mesh library (uses peat-lite for embedded nodes)
