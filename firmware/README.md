@@ -6,7 +6,7 @@ Resource-constrained Peat protocol implementation for embedded sensors.
 
 Peat-Lite enables ESP32-based devices (M5Stack Core2, Waveshare UGV Beast ESP32 controller, etc.) to participate as **first-class mesh members** in a Peat network. Unlike bridge-based approaches, Lite nodes speak the same protocol as Full nodes with capability negotiation.
 
-See [ADR-035: Peat-Lite Embedded Sensor Nodes](../docs/adr/035-hive-lite-embedded-nodes.md) for architecture details.
+See [ADR-035: Peat-Lite Embedded Sensor Nodes](../docs/adr/035-peat-lite-embedded-nodes.md) for architecture details.
 
 ## Features
 

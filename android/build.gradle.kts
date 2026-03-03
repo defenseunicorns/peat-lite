@@ -76,8 +76,8 @@ tasks.register<Exec>("buildNativeLibs") {
     description = "Build native Rust libraries for Android"
     group = "build"
 
-    val hiveLiteRoot = rootProject.projectDir.parentFile
-    workingDir = hiveLiteRoot
+    val peatLiteRoot = rootProject.projectDir.parentFile
+    workingDir = peatLiteRoot
 
     val ndkPath = System.getenv("ANDROID_NDK_HOME")
         ?: System.getenv("NDK_HOME")
@@ -121,8 +121,8 @@ tasks.register<Exec>("generateBindings") {
 
     dependsOn("buildNativeLibs")
 
-    val hiveLiteRoot = rootProject.projectDir.parentFile
-    workingDir = hiveLiteRoot
+    val peatLiteRoot = rootProject.projectDir.parentFile
+    workingDir = peatLiteRoot
 
     commandLine("bash", "-c", """
         set -e
