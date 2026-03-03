@@ -3,7 +3,7 @@
 
 @file:Suppress("NAME_SHADOWING")
 
-package uniffi.hive_lite_android
+package uniffi.peat_lite_android
 
 // Common helper code.
 //
@@ -58,7 +58,7 @@ open class RustBuffer : Structure() {
     companion object {
         internal fun alloc(size: ULong = 0UL) = uniffiRustCall() { status ->
             // Note: need to convert the size to a `Long` value to make this work with JVM.
-            UniffiLib.INSTANCE.ffi_hive_lite_android_rustbuffer_alloc(size.toLong(), status)
+            UniffiLib.INSTANCE.ffi_peat_lite_android_rustbuffer_alloc(size.toLong(), status)
         }.also {
             if(it.data == null) {
                throw RuntimeException("RustBuffer.alloc() returned null data pointer (size=${size})")
@@ -74,7 +74,7 @@ open class RustBuffer : Structure() {
         }
 
         internal fun free(buf: RustBuffer.ByValue) = uniffiRustCall() { status ->
-            UniffiLib.INSTANCE.ffi_hive_lite_android_rustbuffer_free(buf, status)
+            UniffiLib.INSTANCE.ffi_peat_lite_android_rustbuffer_free(buf, status)
         }
     }
 
@@ -374,7 +374,7 @@ private fun findLibraryName(componentName: String): String {
     if (libOverride != null) {
         return libOverride
     }
-    return "hive_lite_android"
+    return "peat_lite_android"
 }
 
 private inline fun <reified Lib : Library> loadIndirect(
@@ -751,7 +751,7 @@ internal interface UniffiForeignFutureCompleteVoid : com.sun.jna.Callback {
 internal interface UniffiLib : Library {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
-            loadIndirect<UniffiLib>(componentName = "hive_lite_android")
+            loadIndirect<UniffiLib>(componentName = "peat_lite_android")
             .also { lib: UniffiLib ->
                 uniffiCheckContractApiVersion(lib)
                 uniffiCheckApiChecksums(lib)
@@ -760,187 +760,187 @@ internal interface UniffiLib : Library {
         
     }
 
-    fun uniffi_hive_lite_android_fn_func_canned_message_ack_event_ack_count(`event`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_canned_message_ack_event_ack_count(`event`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Int
-    fun uniffi_hive_lite_android_fn_func_canned_message_ack_event_add_ack(`event`: RustBuffer.ByValue,`ackerNodeId`: Int,`ackTimestamp`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_canned_message_ack_event_add_ack(`event`: RustBuffer.ByValue,`ackerNodeId`: Int,`ackTimestamp`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_hive_lite_android_fn_func_canned_message_ack_event_get_ack_timestamp(`event`: RustBuffer.ByValue,`nodeId`: Int,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_canned_message_ack_event_get_ack_timestamp(`event`: RustBuffer.ByValue,`nodeId`: Int,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_hive_lite_android_fn_func_canned_message_ack_event_has_acked(`event`: RustBuffer.ByValue,`nodeId`: Int,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_canned_message_ack_event_has_acked(`event`: RustBuffer.ByValue,`nodeId`: Int,uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
-    fun uniffi_hive_lite_android_fn_func_canned_message_ack_event_merge(`event1`: RustBuffer.ByValue,`event2`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_canned_message_ack_event_merge(`event1`: RustBuffer.ByValue,`event2`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_hive_lite_android_fn_func_canned_message_code(`message`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_canned_message_code(`message`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
-    fun uniffi_hive_lite_android_fn_func_canned_message_from_code(`code`: Byte,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_canned_message_from_code(`code`: Byte,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_hive_lite_android_fn_func_canned_message_is_ack(`message`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_canned_message_is_ack(`message`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
-    fun uniffi_hive_lite_android_fn_func_canned_message_is_alert(`message`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_canned_message_is_alert(`message`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
-    fun uniffi_hive_lite_android_fn_func_canned_message_marker(uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_canned_message_marker(uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
-    fun uniffi_hive_lite_android_fn_func_canned_message_short_name(`message`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_canned_message_short_name(`message`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_hive_lite_android_fn_func_create_canned_message_ack_event(`message`: RustBuffer.ByValue,`sourceNode`: Int,`targetNode`: Int,`timestamp`: Long,`sequence`: Int,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_create_canned_message_ack_event(`message`: RustBuffer.ByValue,`sourceNode`: Int,`targetNode`: Int,`timestamp`: Long,`sequence`: Int,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_hive_lite_android_fn_func_create_canned_message_event(`message`: RustBuffer.ByValue,`sourceNode`: Int,`targetNode`: Int,`timestamp`: Long,`sequence`: Int,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_create_canned_message_event(`message`: RustBuffer.ByValue,`sourceNode`: Int,`targetNode`: Int,`timestamp`: Long,`sequence`: Int,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_hive_lite_android_fn_func_decode_canned_message_ack_event(`data`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_decode_canned_message_ack_event(`data`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_hive_lite_android_fn_func_decode_canned_message_event(`data`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_decode_canned_message_event(`data`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_hive_lite_android_fn_func_encode_canned_message_ack_event(`event`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_encode_canned_message_ack_event(`event`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun uniffi_hive_lite_android_fn_func_encode_canned_message_event(`event`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun uniffi_peat_lite_android_fn_func_encode_canned_message_event(`event`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun ffi_hive_lite_android_rustbuffer_alloc(`size`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rustbuffer_alloc(`size`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun ffi_hive_lite_android_rustbuffer_from_bytes(`bytes`: ForeignBytes.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rustbuffer_from_bytes(`bytes`: ForeignBytes.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun ffi_hive_lite_android_rustbuffer_free(`buf`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rustbuffer_free(`buf`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
-    fun ffi_hive_lite_android_rustbuffer_reserve(`buf`: RustBuffer.ByValue,`additional`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rustbuffer_reserve(`buf`: RustBuffer.ByValue,`additional`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun ffi_hive_lite_android_rust_future_poll_u8(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    fun ffi_peat_lite_android_rust_future_poll_u8(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_cancel_u8(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_cancel_u8(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_free_u8(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_free_u8(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_complete_u8(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rust_future_complete_u8(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
-    fun ffi_hive_lite_android_rust_future_poll_i8(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    fun ffi_peat_lite_android_rust_future_poll_i8(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_cancel_i8(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_cancel_i8(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_free_i8(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_free_i8(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_complete_i8(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rust_future_complete_i8(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
-    fun ffi_hive_lite_android_rust_future_poll_u16(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    fun ffi_peat_lite_android_rust_future_poll_u16(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_cancel_u16(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_cancel_u16(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_free_u16(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_free_u16(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_complete_u16(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rust_future_complete_u16(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): Short
-    fun ffi_hive_lite_android_rust_future_poll_i16(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    fun ffi_peat_lite_android_rust_future_poll_i16(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_cancel_i16(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_cancel_i16(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_free_i16(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_free_i16(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_complete_i16(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rust_future_complete_i16(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): Short
-    fun ffi_hive_lite_android_rust_future_poll_u32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    fun ffi_peat_lite_android_rust_future_poll_u32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_cancel_u32(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_cancel_u32(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_free_u32(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_free_u32(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_complete_u32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rust_future_complete_u32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): Int
-    fun ffi_hive_lite_android_rust_future_poll_i32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    fun ffi_peat_lite_android_rust_future_poll_i32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_cancel_i32(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_cancel_i32(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_free_i32(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_free_i32(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_complete_i32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rust_future_complete_i32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): Int
-    fun ffi_hive_lite_android_rust_future_poll_u64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    fun ffi_peat_lite_android_rust_future_poll_u64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_cancel_u64(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_cancel_u64(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_free_u64(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_free_u64(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_complete_u64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rust_future_complete_u64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): Long
-    fun ffi_hive_lite_android_rust_future_poll_i64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    fun ffi_peat_lite_android_rust_future_poll_i64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_cancel_i64(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_cancel_i64(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_free_i64(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_free_i64(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_complete_i64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rust_future_complete_i64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): Long
-    fun ffi_hive_lite_android_rust_future_poll_f32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    fun ffi_peat_lite_android_rust_future_poll_f32(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_cancel_f32(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_cancel_f32(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_free_f32(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_free_f32(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_complete_f32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rust_future_complete_f32(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): Float
-    fun ffi_hive_lite_android_rust_future_poll_f64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    fun ffi_peat_lite_android_rust_future_poll_f64(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_cancel_f64(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_cancel_f64(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_free_f64(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_free_f64(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_complete_f64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rust_future_complete_f64(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): Double
-    fun ffi_hive_lite_android_rust_future_poll_pointer(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    fun ffi_peat_lite_android_rust_future_poll_pointer(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_cancel_pointer(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_cancel_pointer(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_free_pointer(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_free_pointer(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_complete_pointer(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rust_future_complete_pointer(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): Pointer
-    fun ffi_hive_lite_android_rust_future_poll_rust_buffer(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    fun ffi_peat_lite_android_rust_future_poll_rust_buffer(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_cancel_rust_buffer(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_cancel_rust_buffer(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_free_rust_buffer(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_free_rust_buffer(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_complete_rust_buffer(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rust_future_complete_rust_buffer(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun ffi_hive_lite_android_rust_future_poll_void(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
+    fun ffi_peat_lite_android_rust_future_poll_void(`handle`: Long,`callback`: UniffiRustFutureContinuationCallback,`callbackData`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_cancel_void(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_cancel_void(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_free_void(`handle`: Long,
+    fun ffi_peat_lite_android_rust_future_free_void(`handle`: Long,
     ): Unit
-    fun ffi_hive_lite_android_rust_future_complete_void(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
+    fun ffi_peat_lite_android_rust_future_complete_void(`handle`: Long,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
-    fun uniffi_hive_lite_android_checksum_func_canned_message_ack_event_ack_count(
+    fun uniffi_peat_lite_android_checksum_func_canned_message_ack_event_ack_count(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_canned_message_ack_event_add_ack(
+    fun uniffi_peat_lite_android_checksum_func_canned_message_ack_event_add_ack(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_canned_message_ack_event_get_ack_timestamp(
+    fun uniffi_peat_lite_android_checksum_func_canned_message_ack_event_get_ack_timestamp(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_canned_message_ack_event_has_acked(
+    fun uniffi_peat_lite_android_checksum_func_canned_message_ack_event_has_acked(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_canned_message_ack_event_merge(
+    fun uniffi_peat_lite_android_checksum_func_canned_message_ack_event_merge(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_canned_message_code(
+    fun uniffi_peat_lite_android_checksum_func_canned_message_code(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_canned_message_from_code(
+    fun uniffi_peat_lite_android_checksum_func_canned_message_from_code(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_canned_message_is_ack(
+    fun uniffi_peat_lite_android_checksum_func_canned_message_is_ack(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_canned_message_is_alert(
+    fun uniffi_peat_lite_android_checksum_func_canned_message_is_alert(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_canned_message_marker(
+    fun uniffi_peat_lite_android_checksum_func_canned_message_marker(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_canned_message_short_name(
+    fun uniffi_peat_lite_android_checksum_func_canned_message_short_name(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_create_canned_message_ack_event(
+    fun uniffi_peat_lite_android_checksum_func_create_canned_message_ack_event(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_create_canned_message_event(
+    fun uniffi_peat_lite_android_checksum_func_create_canned_message_event(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_decode_canned_message_ack_event(
+    fun uniffi_peat_lite_android_checksum_func_decode_canned_message_ack_event(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_decode_canned_message_event(
+    fun uniffi_peat_lite_android_checksum_func_decode_canned_message_event(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_encode_canned_message_ack_event(
+    fun uniffi_peat_lite_android_checksum_func_encode_canned_message_ack_event(
     ): Short
-    fun uniffi_hive_lite_android_checksum_func_encode_canned_message_event(
+    fun uniffi_peat_lite_android_checksum_func_encode_canned_message_event(
     ): Short
-    fun ffi_hive_lite_android_uniffi_contract_version(
+    fun ffi_peat_lite_android_uniffi_contract_version(
     ): Int
     
 }
@@ -949,7 +949,7 @@ private fun uniffiCheckContractApiVersion(lib: UniffiLib) {
     // Get the bindings contract version from our ComponentInterface
     val bindings_contract_version = 26
     // Get the scaffolding contract version by calling the into the dylib
-    val scaffolding_contract_version = lib.ffi_hive_lite_android_uniffi_contract_version()
+    val scaffolding_contract_version = lib.ffi_peat_lite_android_uniffi_contract_version()
     if (bindings_contract_version != scaffolding_contract_version) {
         throw RuntimeException("UniFFI contract version mismatch: try cleaning and rebuilding your project")
     }
@@ -957,55 +957,55 @@ private fun uniffiCheckContractApiVersion(lib: UniffiLib) {
 
 @Suppress("UNUSED_PARAMETER")
 private fun uniffiCheckApiChecksums(lib: UniffiLib) {
-    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_ack_event_ack_count() != 64102.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_canned_message_ack_event_ack_count() != 64102.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_ack_event_add_ack() != 20334.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_canned_message_ack_event_add_ack() != 20334.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_ack_event_get_ack_timestamp() != 448.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_canned_message_ack_event_get_ack_timestamp() != 448.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_ack_event_has_acked() != 7385.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_canned_message_ack_event_has_acked() != 7385.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_ack_event_merge() != 4278.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_canned_message_ack_event_merge() != 4278.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_code() != 63231.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_canned_message_code() != 63231.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_from_code() != 26441.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_canned_message_from_code() != 26441.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_is_ack() != 65110.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_canned_message_is_ack() != 65110.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_is_alert() != 39705.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_canned_message_is_alert() != 39705.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_marker() != 15598.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_canned_message_marker() != 15598.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_canned_message_short_name() != 12175.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_canned_message_short_name() != 12175.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_create_canned_message_ack_event() != 582.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_create_canned_message_ack_event() != 582.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_create_canned_message_event() != 31292.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_create_canned_message_event() != 31292.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_decode_canned_message_ack_event() != 22659.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_decode_canned_message_ack_event() != 22659.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_decode_canned_message_event() != 32244.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_decode_canned_message_event() != 32244.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_encode_canned_message_ack_event() != 46873.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_encode_canned_message_ack_event() != 46873.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_hive_lite_android_checksum_func_encode_canned_message_event() != 50297.toShort()) {
+    if (lib.uniffi_peat_lite_android_checksum_func_encode_canned_message_event() != 50297.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
 }
@@ -1615,7 +1615,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `cannedMessageAckEventAckCount`(`event`: CannedMessageAckEventData): kotlin.UInt {
             return FfiConverterUInt.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_ack_event_ack_count(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_canned_message_ack_event_ack_count(
         FfiConverterTypeCannedMessageAckEventData.lower(`event`),_status)
 }
     )
@@ -1630,7 +1630,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `cannedMessageAckEventAddAck`(`event`: CannedMessageAckEventData, `ackerNodeId`: kotlin.UInt, `ackTimestamp`: kotlin.ULong): CannedMessageAckEventData {
             return FfiConverterTypeCannedMessageAckEventData.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_ack_event_add_ack(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_canned_message_ack_event_add_ack(
         FfiConverterTypeCannedMessageAckEventData.lower(`event`),FfiConverterUInt.lower(`ackerNodeId`),FfiConverterULong.lower(`ackTimestamp`),_status)
 }
     )
@@ -1642,7 +1642,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `cannedMessageAckEventGetAckTimestamp`(`event`: CannedMessageAckEventData, `nodeId`: kotlin.UInt): kotlin.ULong? {
             return FfiConverterOptionalULong.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_ack_event_get_ack_timestamp(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_canned_message_ack_event_get_ack_timestamp(
         FfiConverterTypeCannedMessageAckEventData.lower(`event`),FfiConverterUInt.lower(`nodeId`),_status)
 }
     )
@@ -1654,7 +1654,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `cannedMessageAckEventHasAcked`(`event`: CannedMessageAckEventData, `nodeId`: kotlin.UInt): kotlin.Boolean {
             return FfiConverterBoolean.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_ack_event_has_acked(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_canned_message_ack_event_has_acked(
         FfiConverterTypeCannedMessageAckEventData.lower(`event`),FfiConverterUInt.lower(`nodeId`),_status)
 }
     )
@@ -1671,7 +1671,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `cannedMessageAckEventMerge`(`event1`: CannedMessageAckEventData, `event2`: CannedMessageAckEventData): CannedMessageAckEventData {
             return FfiConverterTypeCannedMessageAckEventData.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_ack_event_merge(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_canned_message_ack_event_merge(
         FfiConverterTypeCannedMessageAckEventData.lower(`event1`),FfiConverterTypeCannedMessageAckEventData.lower(`event2`),_status)
 }
     )
@@ -1683,7 +1683,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `cannedMessageCode`(`message`: CannedMessageType): kotlin.UByte {
             return FfiConverterUByte.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_code(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_canned_message_code(
         FfiConverterTypeCannedMessageType.lower(`message`),_status)
 }
     )
@@ -1697,7 +1697,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `cannedMessageFromCode`(`code`: kotlin.UByte): CannedMessageType? {
             return FfiConverterOptionalTypeCannedMessageType.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_from_code(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_canned_message_from_code(
         FfiConverterUByte.lower(`code`),_status)
 }
     )
@@ -1709,7 +1709,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `cannedMessageIsAck`(`message`: CannedMessageType): kotlin.Boolean {
             return FfiConverterBoolean.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_is_ack(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_canned_message_is_ack(
         FfiConverterTypeCannedMessageType.lower(`message`),_status)
 }
     )
@@ -1721,7 +1721,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `cannedMessageIsAlert`(`message`: CannedMessageType): kotlin.Boolean {
             return FfiConverterBoolean.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_is_alert(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_canned_message_is_alert(
         FfiConverterTypeCannedMessageType.lower(`message`),_status)
 }
     )
@@ -1733,7 +1733,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `cannedMessageMarker`(): kotlin.UByte {
             return FfiConverterUByte.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_marker(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_canned_message_marker(
         _status)
 }
     )
@@ -1745,7 +1745,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `cannedMessageShortName`(`message`: CannedMessageType): kotlin.String {
             return FfiConverterString.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_canned_message_short_name(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_canned_message_short_name(
         FfiConverterTypeCannedMessageType.lower(`message`),_status)
 }
     )
@@ -1757,7 +1757,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `createCannedMessageAckEvent`(`message`: CannedMessageType, `sourceNode`: kotlin.UInt, `targetNode`: kotlin.UInt, `timestamp`: kotlin.ULong, `sequence`: kotlin.UInt): CannedMessageAckEventData {
             return FfiConverterTypeCannedMessageAckEventData.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_create_canned_message_ack_event(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_create_canned_message_ack_event(
         FfiConverterTypeCannedMessageType.lower(`message`),FfiConverterUInt.lower(`sourceNode`),FfiConverterUInt.lower(`targetNode`),FfiConverterULong.lower(`timestamp`),FfiConverterUInt.lower(`sequence`),_status)
 }
     )
@@ -1769,7 +1769,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `createCannedMessageEvent`(`message`: CannedMessageType, `sourceNode`: kotlin.UInt, `targetNode`: kotlin.UInt, `timestamp`: kotlin.ULong, `sequence`: kotlin.UInt): CannedMessageEventData {
             return FfiConverterTypeCannedMessageEventData.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_create_canned_message_event(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_create_canned_message_event(
         FfiConverterTypeCannedMessageType.lower(`message`),FfiConverterUInt.lower(`sourceNode`),FfiConverterUInt.lower(`targetNode`),FfiConverterULong.lower(`timestamp`),FfiConverterUInt.lower(`sequence`),_status)
 }
     )
@@ -1784,7 +1784,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `decodeCannedMessageAckEvent`(`data`: kotlin.ByteArray): CannedMessageAckEventData? {
             return FfiConverterOptionalTypeCannedMessageAckEventData.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_decode_canned_message_ack_event(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_decode_canned_message_ack_event(
         FfiConverterByteArray.lower(`data`),_status)
 }
     )
@@ -1798,7 +1798,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `decodeCannedMessageEvent`(`data`: kotlin.ByteArray): CannedMessageEventData? {
             return FfiConverterOptionalTypeCannedMessageEventData.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_decode_canned_message_event(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_decode_canned_message_event(
         FfiConverterByteArray.lower(`data`),_status)
 }
     )
@@ -1813,7 +1813,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `encodeCannedMessageAckEvent`(`event`: CannedMessageAckEventData): kotlin.ByteArray {
             return FfiConverterByteArray.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_encode_canned_message_ack_event(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_encode_canned_message_ack_event(
         FfiConverterTypeCannedMessageAckEventData.lower(`event`),_status)
 }
     )
@@ -1827,7 +1827,7 @@ public object FfiConverterSequenceTypeAckEntry: FfiConverterRustBuffer<List<AckE
          */ fun `encodeCannedMessageEvent`(`event`: CannedMessageEventData): kotlin.ByteArray {
             return FfiConverterByteArray.lift(
     uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_hive_lite_android_fn_func_encode_canned_message_event(
+    UniffiLib.INSTANCE.uniffi_peat_lite_android_fn_func_encode_canned_message_event(
         FfiConverterTypeCannedMessageEventData.lower(`event`),_status)
 }
     )
