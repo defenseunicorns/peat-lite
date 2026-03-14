@@ -2,7 +2,7 @@
 name = "peat-lite-android"
 version = "0.0.3"
 edition = "2021"
-authors = ["(r)evolve - Revolve Team LLC"]
+authors = ["Defense Unicorns"]
 license = "Apache-2.0"
 description = "Android/Kotlin bindings for peat-lite via UniFFI"
 publish = false
