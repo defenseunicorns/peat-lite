@@ -18,7 +18,7 @@ homepage = "https://github.com/defenseunicorns/peat-lite"
 keywords = ["crdt", "embedded", "mesh", "peat", "tactical"]
 categories = ["no-std", "data-structures", "embedded"]
 readme = "README.md"
-exclude = ["android/", "android-ffi/", "firmware/", "Makefile", ".goa", "Codex.md", ".github/"]
+exclude = ["android/", "android-ffi/", "firmware/", "Makefile", ".goa", ".github/"]
 
 [lib]
 # rlib for Rust consumers (default)
