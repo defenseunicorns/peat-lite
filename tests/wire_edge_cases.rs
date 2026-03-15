@@ -174,12 +174,7 @@ fn canned_event_decode_21_bytes() {
 
 #[test]
 fn canned_event_decode_wrong_marker() {
-    let event = CannedMessageEvent::new(
-        CannedMessage::CheckIn,
-        NodeId::new(1),
-        None,
-        1000,
-    );
+    let event = CannedMessageEvent::new(CannedMessage::CheckIn, NodeId::new(1), None, 1000);
     let mut encoded = event.encode();
     encoded[0] = 0x00; // corrupt marker
     assert!(CannedMessageEvent::decode(&encoded).is_none());
@@ -187,12 +182,7 @@ fn canned_event_decode_wrong_marker() {
 
 #[test]
 fn canned_event_decode_invalid_message_code() {
-    let event = CannedMessageEvent::new(
-        CannedMessage::Ack,
-        NodeId::new(1),
-        None,
-        1000,
-    );
+    let event = CannedMessageEvent::new(CannedMessage::Ack, NodeId::new(1), None, 1000);
     let mut encoded = event.encode();
     encoded[1] = 0x99; // undefined canned message code
     assert!(CannedMessageEvent::decode(&encoded).is_none());
@@ -201,13 +191,7 @@ fn canned_event_decode_invalid_message_code() {
 #[test]
 fn canned_event_roundtrip_zero_length_payload_fields() {
     // No target, zero timestamp, zero sequence
-    let event = CannedMessageEvent::with_sequence(
-        CannedMessage::Ack,
-        NodeId::new(1),
-        None,
-        0,
-        0,
-    );
+    let event = CannedMessageEvent::with_sequence(CannedMessage::Ack, NodeId::new(1), None, 0, 0);
     let encoded = event.encode();
     let decoded = CannedMessageEvent::decode(&encoded).unwrap();
     assert_eq!(decoded, event);
@@ -217,12 +201,7 @@ fn canned_event_roundtrip_zero_length_payload_fields() {
 
 #[test]
 fn ack_event_decode_num_acks_exceeds_max() {
-    let event = CannedMessageAckEvent::new(
-        CannedMessage::Ack,
-        NodeId::new(1),
-        None,
-        1000,
-    );
+    let event = CannedMessageAckEvent::new(CannedMessage::Ack, NodeId::new(1), None, 1000);
     let mut encoded: Vec<u8> = event.encode().to_vec();
 
     // Overwrite num_acks field (bytes 22-23) to exceed MAX_CANNED_ACKS
@@ -239,12 +218,7 @@ fn ack_event_decode_num_acks_exceeds_max() {
 #[test]
 fn ack_event_decode_num_acks_buffer_too_short() {
     // Encode a valid event, then claim more ACKs than the buffer can hold
-    let event = CannedMessageAckEvent::new(
-        CannedMessage::Ack,
-        NodeId::new(1),
-        None,
-        1000,
-    );
+    let event = CannedMessageAckEvent::new(CannedMessage::Ack, NodeId::new(1), None, 1000);
     let mut encoded: Vec<u8> = event.encode().to_vec();
 
     // Set num_acks to 5 but don't provide enough trailing bytes
@@ -289,7 +263,7 @@ fn gcounter_decode_claims_entries_but_truncated() {
     // Header says 3 entries but only 1 entry of data follows (8 bytes)
     let mut data = vec![0u8; 10]; // 2 header + 8 data = room for 1 entry
     data[0..2].copy_from_slice(&3u16.to_le_bytes()); // claims 3 entries
-    // Fill one entry with valid data
+                                                     // Fill one entry with valid data
     data[2..6].copy_from_slice(&1u32.to_le_bytes()); // node_id
     data[6..10].copy_from_slice(&42u32.to_le_bytes()); // count
     assert!(GCounter::<8>::decode(&data).is_none());
@@ -324,7 +298,7 @@ fn gcounter_decode_extra_trailing_bytes_ignored() {
     counter.increment(NodeId::new(1), 10);
     let mut data: Vec<u8> = counter.encode().to_vec();
     data.extend_from_slice(&[0xFF, 0xFF, 0xFF, 0xFF]); // trailing garbage
-    // Should still decode the valid portion
+                                                       // Should still decode the valid portion
     let decoded = GCounter::<8>::decode(&data).unwrap();
     assert_eq!(decoded.node_count(NodeId::new(1)), 10);
 }
