@@ -2,10 +2,9 @@
 resolver = "2"
 members = [
     ".",
-    "android-ffi",
 ]
-# Firmware requires ESP32 toolchain — build separately
-exclude = ["firmware", "android/"]
+# Firmware and android-ffi require platform-specific toolchains — build separately
+exclude = ["firmware", "android/", "android-ffi"]
 
 [package]
 name = "peat-lite"

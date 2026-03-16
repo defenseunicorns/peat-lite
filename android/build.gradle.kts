@@ -89,24 +89,25 @@ tasks.register<Exec>("buildNativeLibs") {
     commandLine("bash", "-c", """
         set -e
         echo "Building peat-lite-android native libraries from: $(pwd)"
+        cd android-ffi
 
         # Build for arm64-v8a (modern Android devices)
         echo "Building for aarch64-linux-android (arm64-v8a)..."
-        cargo build --release --lib -p peat-lite-android --target aarch64-linux-android
-        mkdir -p android/src/main/jniLibs/arm64-v8a
-        cp target/aarch64-linux-android/release/libpeat_lite_android.so android/src/main/jniLibs/arm64-v8a/
+        cargo build --release --lib --target aarch64-linux-android
+        mkdir -p ../android/src/main/jniLibs/arm64-v8a
+        cp ../target/aarch64-linux-android/release/libpeat_lite_android.so ../android/src/main/jniLibs/arm64-v8a/
 
         # Build for armeabi-v7a (older devices)
         echo "Building for armv7-linux-androideabi (armeabi-v7a)..."
-        cargo build --release --lib -p peat-lite-android --target armv7-linux-androideabi
-        mkdir -p android/src/main/jniLibs/armeabi-v7a
-        cp target/armv7-linux-androideabi/release/libpeat_lite_android.so android/src/main/jniLibs/armeabi-v7a/
+        cargo build --release --lib --target armv7-linux-androideabi
+        mkdir -p ../android/src/main/jniLibs/armeabi-v7a
+        cp ../target/armv7-linux-androideabi/release/libpeat_lite_android.so ../android/src/main/jniLibs/armeabi-v7a/
 
         # Build for x86_64 (emulators)
         echo "Building for x86_64-linux-android (x86_64)..."
-        cargo build --release --lib -p peat-lite-android --target x86_64-linux-android
-        mkdir -p android/src/main/jniLibs/x86_64
-        cp target/x86_64-linux-android/release/libpeat_lite_android.so android/src/main/jniLibs/x86_64/
+        cargo build --release --lib --target x86_64-linux-android
+        mkdir -p ../android/src/main/jniLibs/x86_64
+        cp ../target/x86_64-linux-android/release/libpeat_lite_android.so ../android/src/main/jniLibs/x86_64/
 
         echo ""
         echo "Native libraries built successfully!"
@@ -128,10 +129,11 @@ tasks.register<Exec>("generateBindings") {
         echo "Generating Kotlin bindings..."
 
         # Generate bindings using uniffi-bindgen (runs on host, not cross-compiled)
-        cargo run -p peat-lite-android --bin uniffi-bindgen generate \
-            --library target/aarch64-linux-android/release/libpeat_lite_android.so \
+        cd android-ffi
+        cargo run --bin uniffi-bindgen generate \
+            --library ../target/aarch64-linux-android/release/libpeat_lite_android.so \
             --language kotlin \
-            --out-dir android/src/main/java
+            --out-dir ../android/src/main/java
 
         echo "Kotlin bindings generated in android/src/main/java/"
     """.trimIndent())
