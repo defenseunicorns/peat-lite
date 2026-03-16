@@ -11,16 +11,35 @@ Thank you for your interest in contributing to peat-lite! This document provides
 
 ## Development Setup
 
-peat-lite is a Rust crate targeting both `std` and `no_std` environments.
+### Prerequisites
+
+- Rust stable toolchain (install via [rustup](https://rustup.rs))
+
+### Feature Flags
+
+| Feature | Description |
+|---------|-------------|
+| `std` (default) | Standard library support |
+| (no default features) | `no_std` embedded build |
+
+### Building
 
 ```bash
-# Install Rust (if needed)
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+cargo build                     # std (default)
+cargo build --no-default-features  # no_std (embedded)
+```
 
-# Clone and build
-git clone https://github.com/defenseunicorns/peat-lite.git
-cd peat-lite
-cargo build
+## Testing
+
+```bash
+# Unit tests
+cargo test
+
+# Verify no_std builds
+cargo build --no-default-features
+
+# Integration tests (wire protocol edge cases)
+cargo test --test wire_edge_cases
 ```
 
 ## Pre-Commit Checks
