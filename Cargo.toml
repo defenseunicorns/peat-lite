@@ -2,13 +2,14 @@
 resolver = "2"
 members = [
     ".",
+    "android-ffi",
 ]
 # Firmware requires ESP32 toolchain — build separately
-exclude = ["firmware", "android/", "android-ffi/"]
+exclude = ["firmware", "android/"]
 
 [package]
 name = "peat-lite"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 rust-version = "1.70"
 authors = ["Kit Plummer <kitplummer@defenseunicorns.com>"]
