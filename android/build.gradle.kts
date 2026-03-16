@@ -95,6 +95,17 @@ tasks.register<Exec>("buildNativeLibs") {
         echo "Building peat-lite-android native libraries from: $(pwd)"
         cd android-ffi
 
+        # Configure NDK linkers via env vars (overrides .cargo/config.toml)
+        NDK_BIN="${'$'}ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+        export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="${'$'}NDK_BIN/aarch64-linux-android26-clang"
+        export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="${'$'}NDK_BIN/armv7a-linux-androideabi26-clang"
+        export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="${'$'}NDK_BIN/x86_64-linux-android26-clang"
+        export PATH="${'$'}NDK_BIN:${'$'}PATH"
+
+        echo "NDK_BIN=${'$'}NDK_BIN"
+        echo "CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=${'$'}CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER"
+        ls -la "${'$'}CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER" || echo "LINKER NOT FOUND"
+
         # Build for arm64-v8a (modern Android devices)
         echo "Building for aarch64-linux-android (arm64-v8a)..."
         cargo build --release --lib --target aarch64-linux-android
