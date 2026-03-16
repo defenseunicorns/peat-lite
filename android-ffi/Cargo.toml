@@ -1,3 +1,7 @@
+# Standalone crate — not part of the peat-lite workspace.
+# Must be built from this directory so .cargo/config.toml NDK linkers apply.
+[workspace]
+
 [package]
 name = "peat-lite-android"
 version = "0.0.3"
