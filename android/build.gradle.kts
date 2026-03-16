@@ -83,8 +83,12 @@ tasks.register<Exec>("buildNativeLibs") {
         ?: System.getenv("NDK_HOME")
         ?: "${System.getenv("ANDROID_HOME")}/ndk/27.0.12077973"
 
+    val ndkToolchain = "$ndkPath/toolchains/llvm/prebuilt/linux-x86_64/bin"
     environment("ANDROID_NDK_HOME", ndkPath)
-    environment("PATH", "$ndkPath/toolchains/llvm/prebuilt/linux-x86_64/bin:${System.getenv("PATH")}")
+    environment("PATH", "$ndkToolchain:${System.getenv("PATH")}")
+    environment("CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER", "$ndkToolchain/aarch64-linux-android26-clang")
+    environment("CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER", "$ndkToolchain/armv7a-linux-androideabi26-clang")
+    environment("CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER", "$ndkToolchain/x86_64-linux-android26-clang")
 
     commandLine("bash", "-c", """
         set -e
