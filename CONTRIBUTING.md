@@ -11,16 +11,35 @@ Thank you for your interest in contributing to peat-lite! This document provides
 
 ## Development Setup
 
-peat-lite is a Rust crate targeting both `std` and `no_std` environments.
+### Prerequisites
+
+- Rust stable toolchain (install via [rustup](https://rustup.rs))
+
+### Feature Flags
+
+| Feature | Description |
+|---------|-------------|
+| `std` (default) | Standard library support |
+| (no default features) | `no_std` embedded build |
+
+### Building
 
 ```bash
-# Install Rust (if needed)
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+cargo build                     # std (default)
+cargo build --no-default-features  # no_std (embedded)
+```
 
-# Clone and build
-git clone https://github.com/defenseunicorns/peat-lite.git
-cd peat-lite
-cargo build
+## Testing
+
+```bash
+# Unit tests
+cargo test
+
+# Verify no_std builds
+cargo build --no-default-features
+
+# Integration tests (wire protocol edge cases)
+cargo test --test wire_edge_cases
 ```
 
 ## Pre-Commit Checks
@@ -48,6 +67,10 @@ We use **trunk-based development** on `main` with short-lived feature branches:
 
 - **GPG-signed commits are required.** Configure commit signing per [GitHub's documentation](https://docs.github.com/en/authentication/managing-commit-signature-verification).
 - Write clear, descriptive commit messages
+
+## Pull Request Access
+
+Submitting pull requests requires contributor access to the repository. If you're interested in contributing, please open an issue to introduce yourself and discuss the change you'd like to make. A maintainer will grant PR access to active contributors.
 
 ## Pull Request Process
 
