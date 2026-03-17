@@ -1,14 +1,12 @@
 # peat-lite
 
-Lightweight CRDT primitives for resource-constrained Peat nodes.
+Brings the smallest devices into the Peat mesh — watches, microcontrollers, and sensors that have 256KB of RAM and no operating system. Part of the [Peat](https://github.com/defenseunicorns/peat) ecosystem.
 
 ## Overview
 
-peat-lite provides bounded, `no_std`-compatible data structures suitable for devices with limited memory (256KB RAM budget):
+Not every device in a tactical network runs Linux. WearTAK runs on a Samsung watch. Sensors run on ESP32s. LoRa nodes have kilobytes of memory. These devices still need to participate in the mesh — sending status, receiving commands, syncing state.
 
-- WearTAK on Samsung watches
-- ESP32 sensor nodes
-- LoRa mesh devices
+peat-lite provides bounded, `no_std`-compatible CRDT primitives and a wire protocol that fits in 256KB of RAM:
 
 ## Primitives
 
