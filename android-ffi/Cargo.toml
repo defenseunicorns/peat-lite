@@ -1,6 +1,5 @@
-# Standalone crate — not part of the peat-lite workspace.
-# Must be built from this directory so .cargo/config.toml NDK linkers apply.
-[workspace]
+# Android FFI crate — member of the peat-lite workspace.
+# Build via `cargo build -p peat-lite-android` from the repo root.
 
 [package]
 name = "peat-lite-android"
