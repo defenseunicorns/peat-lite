@@ -5,7 +5,7 @@ members = [
     "android-ffi",
 ]
 # Firmware requires ESP32 toolchain — build separately
-exclude = ["firmware", "android/"]
+exclude = ["firmware", "android/", "fuzz"]
 
 [package]
 name = "peat-lite"
