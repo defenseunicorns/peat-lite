@@ -1,0 +1,51 @@
+[workspace]
+
+[package]
+name = "peat-lite-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+
+[dependencies.peat-lite]
+path = ".."
+
+[[bin]]
+name = "fuzz_canned_message_event_decode"
+path = "fuzz_targets/fuzz_canned_message_event_decode.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_canned_message_ack_decode"
+path = "fuzz_targets/fuzz_canned_message_ack_decode.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_gcounter_decode"
+path = "fuzz_targets/fuzz_gcounter_decode.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_canned_message_signed_decode"
+path = "fuzz_targets/fuzz_canned_message_signed_decode.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_decode_header"
+path = "fuzz_targets/fuzz_decode_header.rs"
+test = false
+doc = false
+bench = false

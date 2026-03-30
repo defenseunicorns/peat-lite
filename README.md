@@ -87,6 +87,25 @@ cargo build --no-default-features
 cargo test
 ```
 
+## Fuzzing
+
+Fuzz targets cover all wire-format decode functions using [cargo-fuzz](https://github.com/rust-fuzz/cargo-fuzz) (requires nightly):
+
+```bash
+rustup toolchain install nightly
+cargo +nightly fuzz list
+cargo +nightly fuzz run fuzz_canned_message_event_decode
+```
+
+Targets:
+- `fuzz_canned_message_event_decode` — `CannedMessageEvent::decode()` and `decode_auto()`
+- `fuzz_canned_message_signed_decode` — `CannedMessageEvent::decode_signed()`
+- `fuzz_canned_message_ack_decode` — `CannedMessageAckEvent::decode()`
+- `fuzz_gcounter_decode` — `GCounter::decode()`
+- `fuzz_decode_header` — `decode_header()`
+
+Each target verifies encode/decode roundtrip consistency. Seed corpora are in `fuzz/corpus/`.
+
 ## License
 
 Apache-2.0
