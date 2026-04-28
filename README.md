@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/defenseunicorns/peat/main/assets/peat-wordmark.png" alt="PEAT" width="420">
+</p>
+
 # peat-lite
 
 Brings the smallest devices into the Peat mesh — watches, microcontrollers, and sensors that have 256KB of RAM and no operating system. Part of the [Peat](https://github.com/defenseunicorns/peat) ecosystem.
