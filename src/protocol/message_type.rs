@@ -16,6 +16,15 @@ pub enum MessageType {
     Ack = 0x05,
     /// Leave notification.
     Leave = 0x06,
+    /// Universal Document carrier (peat_mesh::Document, transport-agnostic).
+    ///
+    /// Distinct from [`MessageType::Data`]'s typed-CRDT-primitive payload —
+    /// `Document` carries an opaque envelope: collection name + doc id +
+    /// timestamp + length-prefixed body bytes whose interpretation is owned
+    /// by peat-mesh (or any consumer). Adding a new collection on the
+    /// network requires zero codec changes downstream of peat-lite.
+    /// See `protocol::document` for the wire layout.
+    Document = 0x07,
     /// OTA firmware offer (Full -> Lite).
     OtaOffer = 0x10,
     /// OTA accept (Lite -> Full).
@@ -42,6 +51,7 @@ impl MessageType {
             0x04 => Some(Self::Query),
             0x05 => Some(Self::Ack),
             0x06 => Some(Self::Leave),
+            0x07 => Some(Self::Document),
             0x10 => Some(Self::OtaOffer),
             0x11 => Some(Self::OtaAccept),
             0x12 => Some(Self::OtaData),

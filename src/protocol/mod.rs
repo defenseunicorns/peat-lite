@@ -7,6 +7,7 @@
 pub mod capabilities;
 pub mod constants;
 pub mod crdt_type;
+pub mod document;
 pub mod error;
 pub mod header;
 pub mod message_type;
@@ -16,6 +17,10 @@ pub mod ttl;
 pub use capabilities::NodeCapabilities;
 pub use constants::*;
 pub use crdt_type::CrdtType;
+pub use document::{
+    DocumentRef, DOC_FLAG_ENCRYPTED, DOC_FLAG_TOMBSTONE, MAX_BODY_LEN, MAX_COLLECTION_LEN,
+    MAX_DOC_ID_LEN,
+};
 pub use error::MessageError;
 pub use header::{decode_header, encode_header, Header};
 pub use message_type::MessageType;
