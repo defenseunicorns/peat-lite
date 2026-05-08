@@ -80,16 +80,31 @@ pub const DOC_FLAG_TOMBSTONE: u8 = 0x01;
 /// Bit 1: body is encrypted (per-document, key established
 /// out-of-band). **Reserved for a future encryption layer**; today's
 /// encoder rejects the flag entirely (returns
-/// `MessageError::InvalidFlags`) so non-conforming senders can't ship
-/// frames downstream consumers don't know how to decrypt. Decoders
-/// see the flag via `DocumentRef::is_encrypted()` for forward-compat
-/// inspection but MUST treat the body as opaque.
+/// `MessageError::InvalidFlags`) so a conforming sender will never
+/// ship a frame with this bit set.
+///
+/// Note the deliberate asymmetry: the **decoder does not validate
+/// flags**. A frame from a non-conforming or future sender carrying
+/// this bit will decode successfully and surface via
+/// [`DocumentRef::is_encrypted`] for forward-compat inspection — the
+/// decoder is permissive on input from peers that may run a newer
+/// peat-lite version. Consumers MUST treat the body as opaque when
+/// they see the bit set; the encoder is the contract enforcement
+/// point, not the decoder.
 pub const DOC_FLAG_ENCRYPTED: u8 = 0x02;
 /// Mask of currently-defined flag bits. Bits set outside this mask
 /// are reserved for future protocol versions; today's encoder
 /// rejects them with `MessageError::InvalidFlags` so that legacy
 /// frames can't enable not-yet-implemented behaviors. Round-2 of
 /// peat-lite#26 added this reservation contract.
+///
+/// **Adding a new flag**: extend the mask, add the const, AND wire
+/// the encode/decode handling for the new behavior. The
+/// `reserved_flag_bits_are_rejected` test will start failing for the
+/// new bit (since it's no longer reserved), forcing the contributor
+/// to update tests, which is the integration prompt that the
+/// behavior wiring is also incomplete. There is no static-analysis
+/// forcing function, so the test loop is the canary.
 pub const DOC_FLAGS_MASK: u8 = DOC_FLAG_TOMBSTONE | DOC_FLAG_ENCRYPTED;
 
 /// Maximum length of a collection name on the wire (1-byte length
@@ -220,17 +235,14 @@ pub fn encode(
     if coll_bytes.is_empty() {
         return Err(MessageError::EmptyCollection);
     }
-    // NUL bytes in collection name create routing-key ambiguity: some
-    // string-comparison paths treat the embedded NUL as a terminator,
-    // others as a literal byte. Reject so the wire is unambiguous.
-    if coll_bytes.contains(&0) {
+    // NUL bytes in collection name OR doc id create routing-key
+    // ambiguity: some string-comparison paths treat the embedded NUL
+    // as a terminator, others as a literal byte. Both fields route
+    // into the doc store identically, so the rejection has to be
+    // symmetric. (Round-3 review caught the asymmetry: collection was
+    // rejected, doc_id wasn't.)
+    if coll_bytes.contains(&0) || id_bytes.contains(&0) {
         return Err(MessageError::InvalidUtf8);
-    }
-    if coll_bytes.len() > MAX_COLLECTION_LEN
-        || id_bytes.len() > MAX_DOC_ID_LEN
-        || body.len() > MAX_BODY_LEN
-    {
-        return Err(MessageError::FieldTooLarge);
     }
 
     // Tombstone-vs-body invariant: a tombstone is a deletion sentinel,
@@ -239,8 +251,20 @@ pub fn encode(
     // forgot to clear the body buffer; adversarial sender combining
     // ops). Reject at encode so downstream consumers can trust the
     // invariant unconditionally.
+    //
+    // Checked before the size-cap below so a tombstone with a 70 KB
+    // body surfaces as `TombstoneWithBody` (semantically primary)
+    // rather than `FieldTooLarge` (size-only) — round-3 review
+    // flagged the inverted priority.
     if flags & DOC_FLAG_TOMBSTONE != 0 && !body.is_empty() {
         return Err(MessageError::TombstoneWithBody);
+    }
+
+    if coll_bytes.len() > MAX_COLLECTION_LEN
+        || id_bytes.len() > MAX_DOC_ID_LEN
+        || body.len() > MAX_BODY_LEN
+    {
+        return Err(MessageError::FieldTooLarge);
     }
 
     let needed = encoded_len(coll_bytes.len(), id_bytes.len(), body.len())
@@ -270,12 +294,10 @@ pub fn encode(
     // Runtime assertion (not debug-only): a logic bug here would
     // produce a wrong wire length silently in release builds, which
     // is exactly the catastrophic divergence the QA round-2 review
-    // flagged. Cheap one-branch check on the encode slow path.
-    assert_eq!(
-        o, needed,
-        "Document encode wrote {} bytes, expected {} — encoder logic bug",
-        o, needed
-    );
+    // flagged. Plain `assert_eq!` (no format args) keeps the
+    // `no_std` ESP32 / LoRa MCU `.text` footprint minimal — the
+    // condition is the diagnostic.
+    assert_eq!(o, needed);
     Ok(o)
 }
 
@@ -322,6 +344,12 @@ pub fn decode(buf: &[u8]) -> Result<DocumentRef<'_>, MessageError> {
     }
     let doc_id =
         core::str::from_utf8(&buf[o..o + id_len]).map_err(|_| MessageError::InvalidUtf8)?;
+    if doc_id.as_bytes().contains(&0) {
+        // Mirror the collection NUL rejection — doc_id is also a
+        // routing key in the doc store. Round-3 review flagged the
+        // asymmetry.
+        return Err(MessageError::InvalidUtf8);
+    }
     o += id_len;
 
     if buf.len() < o + 8 {
@@ -503,16 +531,25 @@ mod tests {
     }
 
     /// `encoded_len` guards against `usize` overflow on 32-bit
-    /// targets. With the value-cap maxima in place today the worst
-    /// case fits 32-bit, but the guard exists so future field
-    /// expansions can't silently wrap.
+    /// targets. Three checked_add calls — exercise overflow at each
+    /// (col+id, that_sum+body, that_sum+fixed). The third path
+    /// (`+ fixed`) is the "almost fit" case; round-3 review noted it
+    /// wasn't covered.
     #[test]
     fn encoded_len_returns_none_on_overflow() {
-        // Pass values that sum past `usize::MAX`; on 64-bit hosts
-        // this requires `usize::MAX` itself, on 32-bit ESP32 just two
-        // 2^31-ish values suffice.
+        // First checked_add overflows: collection_len + doc_id_len
         assert_eq!(encoded_len(usize::MAX, 1, 0), None);
+        // Second checked_add overflows: + body_len
         assert_eq!(encoded_len(0, usize::MAX, 1), None);
+        // Third checked_add overflows: + fixed (14). Only triggers
+        // when the cumulative sum is in the last 14 of usize range.
+        assert_eq!(encoded_len(usize::MAX - 13, 0, 0), None);
+        assert_eq!(encoded_len(0, 0, usize::MAX - 13), None);
+        // Boundary: exactly fits (cumulative + fixed == usize::MAX).
+        assert_eq!(
+            encoded_len(usize::MAX - 14, 0, 0),
+            Some(usize::MAX - 14 + 14)
+        );
     }
 
     /// Field-size limits enforced at encode time. Collection > 255
@@ -619,6 +656,98 @@ mod tests {
             decode(&wire[..22]),
             Err(MessageError::InvalidUtf8),
             "decode must reject NUL-bearing collection for symmetry with encode"
+        );
+    }
+
+    /// **Round-3**: doc_id is also a routing key (the doc store
+    /// indexes on `(collection, id)`); embedded NUL bytes get the
+    /// same treatment as in collection. Round-2 only enforced this
+    /// for `collection`; round-3 closed the asymmetry.
+    #[test]
+    fn nul_bytes_in_doc_id_are_rejected() {
+        let mut buf = [0u8; 64];
+        assert_eq!(
+            encode(0, "markers", "id\0bad", 0, b"x", &mut buf),
+            Err(MessageError::InvalidUtf8),
+        );
+
+        // Hand-craft a wire payload with a NUL-bearing doc_id and
+        // verify decode also rejects.
+        let mut wire = [0u8; 64];
+        wire[0] = 0; // flags
+        wire[1] = 7; // coll_len = 7
+        wire[2..9].copy_from_slice(b"markers");
+        wire[9..11].copy_from_slice(&6u16.to_le_bytes()); // doc_id_len = 6
+        wire[11..17].copy_from_slice(b"id\0bad");
+        // timestamp 17..25 (zeros)
+        // body_len 25..27 (zeros)
+        assert_eq!(
+            decode(&wire[..27]),
+            Err(MessageError::InvalidUtf8),
+            "decode must reject NUL-bearing doc_id for symmetry with encode"
+        );
+    }
+
+    /// **Round-3 P2-3**: tombstone-with-body invariant takes priority
+    /// over the size-cap check. A tombstone with a 70 KB body should
+    /// surface as `TombstoneWithBody` (semantically primary), not
+    /// `FieldTooLarge` (size-only) — round-2 had the priority
+    /// inverted, which would have misdirected callers debugging
+    /// upstream contract violations.
+    #[test]
+    fn tombstone_with_oversize_body_surfaces_tombstone_error() {
+        let body_too_large = vec![0u8; MAX_BODY_LEN + 1];
+        let needed = encoded_len("c".len(), "id".len(), body_too_large.len()).expect("no overflow");
+        let mut buf = vec![0u8; needed];
+        assert_eq!(
+            encode(DOC_FLAG_TOMBSTONE, "c", "id", 0, &body_too_large, &mut buf),
+            Err(MessageError::TombstoneWithBody),
+            "tombstone-vs-body invariant must win against size-cap"
+        );
+    }
+
+    /// **Round-3 P3-1**: `tombstone | encrypted` (0x03) — the
+    /// encrypted-bit reject clause is independent of the tombstone
+    /// bit, so combining them must still fail. Locks the
+    /// short-circuit behavior under test.
+    #[test]
+    fn tombstone_combined_with_encrypted_is_rejected() {
+        let mut buf = [0u8; 64];
+        assert_eq!(
+            encode(
+                DOC_FLAG_TOMBSTONE | DOC_FLAG_ENCRYPTED,
+                "markers",
+                "id",
+                0,
+                &[],
+                &mut buf
+            ),
+            Err(MessageError::InvalidFlags),
+            "tombstone+encrypted must surface InvalidFlags (encrypted clause wins)"
+        );
+    }
+
+    /// **Round-3 P2-1**: fuzz round-trip exercises the
+    /// `MAX_COLLECTION_LEN` boundary. Round-2's fuzz used
+    /// `coll_choices` capped at 17 bytes, so the 1-byte length-prefix
+    /// boundary at 255 was unreached. This dedicated test fills the
+    /// gap deterministically.
+    #[test]
+    fn roundtrip_at_collection_max_length_boundary() {
+        let max_coll = "x".repeat(MAX_COLLECTION_LEN); // 255 bytes
+        let mut buf = vec![0u8; 1024];
+        let n = encode(0, &max_coll, "id", 7, b"body", &mut buf).expect("encode at boundary");
+        let view = decode(&buf[..n]).expect("decode at boundary");
+        assert_eq!(view.collection.len(), MAX_COLLECTION_LEN);
+        assert_eq!(view.collection, max_coll);
+        assert_eq!(view.body, b"body");
+
+        // One byte past the boundary fails as expected.
+        let too_long = "x".repeat(MAX_COLLECTION_LEN + 1);
+        let mut buf2 = vec![0u8; 2048];
+        assert_eq!(
+            encode(0, &too_long, "id", 0, b"x", &mut buf2),
+            Err(MessageError::FieldTooLarge),
         );
     }
 
