@@ -1,7 +1,14 @@
 //! Peat-Lite message type identifiers.
 
 /// Message types for the gossip protocol.
+///
+/// Marked `#[non_exhaustive]` so future protocol amendments can add
+/// variants without breaking exhaustive-match consumers in downstream
+/// crates (peat-mesh, peat-btle, peat-atak-plugin). Match arms must
+/// include a `_ =>` fall-through to compile against the latest
+/// peat-lite.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
 #[repr(u8)]
 pub enum MessageType {
     /// Announce presence and capabilities.

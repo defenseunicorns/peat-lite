@@ -73,14 +73,24 @@
 use super::error::MessageError;
 
 /// Bit 0: deletion tombstone — the publisher is deleting the document
-/// referenced by `(collection, doc_id)`. Body MAY be empty; receivers
-/// MUST tolerate `body_len = 0` when this flag is set.
+/// referenced by `(collection, doc_id)`. Body MUST be empty; the
+/// encoder rejects `tombstone | body.len() > 0` to prevent
+/// publisher-side write-then-delete contract violations.
 pub const DOC_FLAG_TOMBSTONE: u8 = 0x01;
 /// Bit 1: body is encrypted (per-document, key established
-/// out-of-band). Reserved for future use; current encoders must NOT
-/// set this flag and current decoders MUST treat it as opaque
-/// pass-through.
+/// out-of-band). **Reserved for a future encryption layer**; today's
+/// encoder rejects the flag entirely (returns
+/// `MessageError::InvalidFlags`) so non-conforming senders can't ship
+/// frames downstream consumers don't know how to decrypt. Decoders
+/// see the flag via `DocumentRef::is_encrypted()` for forward-compat
+/// inspection but MUST treat the body as opaque.
 pub const DOC_FLAG_ENCRYPTED: u8 = 0x02;
+/// Mask of currently-defined flag bits. Bits set outside this mask
+/// are reserved for future protocol versions; today's encoder
+/// rejects them with `MessageError::InvalidFlags` so that legacy
+/// frames can't enable not-yet-implemented behaviors. Round-2 of
+/// peat-lite#26 added this reservation contract.
+pub const DOC_FLAGS_MASK: u8 = DOC_FLAG_TOMBSTONE | DOC_FLAG_ENCRYPTED;
 
 /// Maximum length of a collection name on the wire (1-byte length
 /// prefix limit).
@@ -95,7 +105,12 @@ pub const MAX_BODY_LEN: usize = u16::MAX as usize;
 
 /// Decoded view of a Document envelope, borrowing from the input
 /// buffer. Hot-path-friendly for `no_std` consumers — no allocation.
+///
+/// Marked `#[non_exhaustive]` so future protocol amendments can add
+/// fields (e.g. fragmentation sequence number) without breaking
+/// downstream `DocumentRef { ... }` literal constructions.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct DocumentRef<'a> {
     /// Flags byte. See [`DOC_FLAG_TOMBSTONE`] / [`DOC_FLAG_ENCRYPTED`].
     pub flags: u8,
@@ -128,22 +143,60 @@ impl<'a> DocumentRef<'a> {
 /// excluding the 16-byte peat-lite header. Useful for callers
 /// preflight-checking a buffer against [`MAX_PAYLOAD_SIZE`] before
 /// committing to a single-packet send vs. fragmentation.
+///
+/// Returns `None` on `usize` overflow — relevant on 32-bit targets
+/// (ESP32, LoRa MCUs) when callers pass user-controlled lengths. With
+/// today's per-field maxima the worst case sums to ~131 KB which fits
+/// 32-bit `usize` comfortably; the guard exists to keep that
+/// invariant explicit if a future field expansion ever drives the
+/// total higher.
 #[inline]
-pub const fn encoded_len(collection_len: usize, doc_id_len: usize, body_len: usize) -> usize {
+pub const fn encoded_len(
+    collection_len: usize,
+    doc_id_len: usize,
+    body_len: usize,
+) -> Option<usize> {
     // flags(1) + collection_len(1) + collection(N)
     //        + doc_id_len(2) + doc_id(M)
     //        + timestamp_ms(8)
     //        + body_len(2) + body(K)
-    1 + 1 + collection_len + 2 + doc_id_len + 8 + 2 + body_len
+    let fixed = 1 + 1 + 2 + 8 + 2;
+    let Some(t) = collection_len.checked_add(doc_id_len) else {
+        return None;
+    };
+    let Some(t) = t.checked_add(body_len) else {
+        return None;
+    };
+    let Some(t) = t.checked_add(fixed) else {
+        return None;
+    };
+    Some(t)
 }
 
 /// Encode a Document envelope into `buf`. Returns the number of bytes
-/// written, or an error if any field exceeds its width or the buffer
-/// is too small.
+/// written, or an error if any field exceeds its width, the buffer is
+/// too small, or the flags / tombstone-vs-body invariants are
+/// violated.
 ///
 /// `buf` is the payload region — callers should already have written
 /// the 16-byte peat-lite header (with [`MessageType::Document`]) into
 /// the preceding bytes via [`super::header::encode_header`].
+///
+/// ## Validity contracts enforced
+///
+/// - `collection`: non-empty, ≤ [`MAX_COLLECTION_LEN`] bytes, must
+///   not contain NUL bytes (NUL would create routing-key ambiguity
+///   downstream where consumers may treat `"markers\0"` and
+///   `"markers"` as different OR the same depending on path).
+/// - `doc_id`: ≤ [`MAX_DOC_ID_LEN`] bytes; empty signals
+///   publisher-delegates-id.
+/// - `body`: ≤ [`MAX_BODY_LEN`] bytes; **MUST be empty when
+///   `flags & DOC_FLAG_TOMBSTONE != 0`**. The encoder rejects
+///   tombstone-with-body to prevent publisher contract violations
+///   that downstream consumers might race write-then-delete against.
+/// - `flags`: only bits in [`DOC_FLAGS_MASK`] may be set. Reserved
+///   bits 2–7 plus the encrypted bit (today not implemented) all
+///   produce [`MessageError::InvalidFlags`].
 pub fn encode(
     flags: u8,
     collection: &str,
@@ -152,14 +205,26 @@ pub fn encode(
     body: &[u8],
     buf: &mut [u8],
 ) -> Result<usize, MessageError> {
+    // Flag validity: only bits in DOC_FLAGS_MASK are defined today,
+    // AND the encrypted bit is reserved for a future encryption layer
+    // we haven't wired through. Reject either condition so legacy
+    // encoders can't ship frames newer consumers don't know how to
+    // process. Tombstone (bit 0) is the only flag actually emitted.
+    if flags & !DOC_FLAGS_MASK != 0 || flags & DOC_FLAG_ENCRYPTED != 0 {
+        return Err(MessageError::InvalidFlags);
+    }
+
     let coll_bytes = collection.as_bytes();
     let id_bytes = doc_id.as_bytes();
 
     if coll_bytes.is_empty() {
-        // Empty collection is structurally invalid — receivers can't
-        // route a Document with no collection. Reject at encode time
-        // so the bug doesn't reach the wire.
-        return Err(MessageError::FieldTooLarge);
+        return Err(MessageError::EmptyCollection);
+    }
+    // NUL bytes in collection name create routing-key ambiguity: some
+    // string-comparison paths treat the embedded NUL as a terminator,
+    // others as a literal byte. Reject so the wire is unambiguous.
+    if coll_bytes.contains(&0) {
+        return Err(MessageError::InvalidUtf8);
     }
     if coll_bytes.len() > MAX_COLLECTION_LEN
         || id_bytes.len() > MAX_DOC_ID_LEN
@@ -168,7 +233,18 @@ pub fn encode(
         return Err(MessageError::FieldTooLarge);
     }
 
-    let needed = encoded_len(coll_bytes.len(), id_bytes.len(), body.len());
+    // Tombstone-vs-body invariant: a tombstone is a deletion sentinel,
+    // not a "delete then create" combo. Carrying a body alongside the
+    // flag invites publisher-side contract violations (publisher
+    // forgot to clear the body buffer; adversarial sender combining
+    // ops). Reject at encode so downstream consumers can trust the
+    // invariant unconditionally.
+    if flags & DOC_FLAG_TOMBSTONE != 0 && !body.is_empty() {
+        return Err(MessageError::TombstoneWithBody);
+    }
+
+    let needed = encoded_len(coll_bytes.len(), id_bytes.len(), body.len())
+        .ok_or(MessageError::FieldTooLarge)?;
     if buf.len() < needed {
         return Err(MessageError::BufferTooSmall);
     }
@@ -191,7 +267,15 @@ pub fn encode(
     buf[o..o + body.len()].copy_from_slice(body);
     o += body.len();
 
-    debug_assert_eq!(o, needed);
+    // Runtime assertion (not debug-only): a logic bug here would
+    // produce a wrong wire length silently in release builds, which
+    // is exactly the catastrophic divergence the QA round-2 review
+    // flagged. Cheap one-branch check on the encode slow path.
+    assert_eq!(
+        o, needed,
+        "Document encode wrote {} bytes, expected {} — encoder logic bug",
+        o, needed
+    );
     Ok(o)
 }
 
@@ -215,9 +299,16 @@ pub fn decode(buf: &[u8]) -> Result<DocumentRef<'_>, MessageError> {
     let collection =
         core::str::from_utf8(&buf[o..o + coll_len]).map_err(|_| MessageError::InvalidUtf8)?;
     if collection.is_empty() {
-        // Mirror the encode-time rejection: an empty collection is
-        // structurally invalid input from a non-conforming sender.
-        return Err(MessageError::TruncatedField);
+        // Mirror the encode-time rejection. Distinct error variant
+        // from `TruncatedField` (which is for buffer-shorter-than-
+        // declared) so callers get an unambiguous diagnosis.
+        return Err(MessageError::EmptyCollection);
+    }
+    if collection.as_bytes().contains(&0) {
+        // NUL bytes in routing keys create downstream ambiguity
+        // (string-comparison paths may treat NUL as terminator vs
+        // literal). Reject for parity with the encoder check.
+        return Err(MessageError::InvalidUtf8);
     }
     o += coll_len;
 
@@ -322,24 +413,30 @@ mod tests {
     }
 
     /// Empty collection is structurally invalid — receivers can't
-    /// route the document. Encoder rejects; decoder treats a wire
-    /// payload claiming `coll_len = 0` as truncated input.
+    /// route the document. Encoder + decoder both surface
+    /// `EmptyCollection` (round-2 of peat-lite#26 added the variant
+    /// to fix the previous asymmetric `FieldTooLarge` /
+    /// `TruncatedField` reporting).
     #[test]
-    fn empty_collection_is_rejected() {
+    fn empty_collection_is_rejected_with_distinct_variant() {
         let mut buf = [0u8; 64];
         assert_eq!(
             encode(0, "", "id", 0, b"x", &mut buf),
-            Err(MessageError::FieldTooLarge)
+            Err(MessageError::EmptyCollection),
+            "encode-side empty-collection must surface EmptyCollection"
         );
 
         // Hand-craft a wire payload with coll_len=0 and verify decode
-        // surfaces it as malformed rather than a valid empty
-        // collection name.
+        // also surfaces EmptyCollection — symmetric with encode.
         let mut wire = [0u8; 16];
         wire[0] = 0; // flags
         wire[1] = 0; // coll_len = 0
                      // doc_id_len = 0 follows at [2..4]; rest unused
-        assert_eq!(decode(&wire[..4]), Err(MessageError::TruncatedField));
+        assert_eq!(
+            decode(&wire[..4]),
+            Err(MessageError::EmptyCollection),
+            "decode-side empty-collection must surface EmptyCollection"
+        );
     }
 
     /// Truncated wire input (each field one byte short) surfaces as
@@ -400,9 +497,22 @@ mod tests {
         let n = encode(0, "tracks", "id-1", 7, &body, &mut buf).expect("encode");
         assert_eq!(
             n,
-            encoded_len("tracks".len(), "id-1".len(), body.len()),
+            encoded_len("tracks".len(), "id-1".len(), body.len()).expect("no overflow"),
             "encoded_len drift",
         );
+    }
+
+    /// `encoded_len` guards against `usize` overflow on 32-bit
+    /// targets. With the value-cap maxima in place today the worst
+    /// case fits 32-bit, but the guard exists so future field
+    /// expansions can't silently wrap.
+    #[test]
+    fn encoded_len_returns_none_on_overflow() {
+        // Pass values that sum past `usize::MAX`; on 64-bit hosts
+        // this requires `usize::MAX` itself, on 32-bit ESP32 just two
+        // 2^31-ish values suffice.
+        assert_eq!(encoded_len(usize::MAX, 1, 0), None);
+        assert_eq!(encoded_len(0, usize::MAX, 1), None);
     }
 
     /// Field-size limits enforced at encode time. Collection > 255
@@ -422,10 +532,140 @@ mod tests {
         // even attempt this; verify the size check fires before any
         // copy.
         let body_too_large = vec![0u8; MAX_BODY_LEN + 1];
-        let mut huge = vec![0u8; encoded_len("c".len(), "id".len(), body_too_large.len())];
+        let needed = encoded_len("c".len(), "id".len(), body_too_large.len()).expect("no overflow");
+        let mut huge = vec![0u8; needed];
         assert_eq!(
             encode(0, "c", "id", 0, &body_too_large, &mut huge),
             Err(MessageError::FieldTooLarge),
         );
+    }
+
+    // -------------------------------------------------------------
+    // Round-2 review additions: adversarial-input invariants
+    // -------------------------------------------------------------
+
+    /// `DOC_FLAG_ENCRYPTED` is reserved — encoder rejects any frame
+    /// with bit 1 set. Forward-compat: prevents a non-conforming
+    /// sender from shipping frames downstream consumers can't
+    /// decrypt while the encryption layer is still being designed.
+    #[test]
+    fn encrypted_flag_is_rejected_today() {
+        let mut buf = [0u8; 64];
+        assert_eq!(
+            encode(DOC_FLAG_ENCRYPTED, "markers", "id", 0, b"x", &mut buf),
+            Err(MessageError::InvalidFlags),
+        );
+    }
+
+    /// Reserved flag bits 2-7 are rejected. Adding a new flag in a
+    /// future protocol version is then opt-in (set the bit + bump
+    /// peat-lite version) rather than implicit; legacy encoders
+    /// can't accidentally enable behaviors they don't implement.
+    #[test]
+    fn reserved_flag_bits_are_rejected() {
+        let mut buf = [0u8; 64];
+        for bit in 2..=7 {
+            let flags = 1u8 << bit;
+            assert_eq!(
+                encode(flags, "markers", "id", 0, b"x", &mut buf),
+                Err(MessageError::InvalidFlags),
+                "bit {} should be rejected as reserved",
+                bit
+            );
+        }
+    }
+
+    /// Tombstone with a non-empty body is a publisher contract
+    /// violation — encoder rejects so downstream consumers don't
+    /// have to handle write-then-delete races.
+    #[test]
+    fn tombstone_with_non_empty_body_is_rejected() {
+        let mut buf = [0u8; 64];
+        assert_eq!(
+            encode(
+                DOC_FLAG_TOMBSTONE,
+                "tracks",
+                "id",
+                0,
+                b"unwanted body",
+                &mut buf
+            ),
+            Err(MessageError::TombstoneWithBody),
+        );
+    }
+
+    /// NUL bytes in a collection name create routing-key ambiguity
+    /// (string-comparison paths may treat embedded NUL as terminator
+    /// vs literal byte). Encoder + decoder both reject for parity.
+    #[test]
+    fn nul_bytes_in_collection_are_rejected() {
+        let mut buf = [0u8; 64];
+        assert_eq!(
+            encode(0, "mark\0ers", "id", 0, b"x", &mut buf),
+            Err(MessageError::InvalidUtf8),
+        );
+
+        // Hand-craft a wire payload with a NUL-bearing collection
+        // name and verify decode also rejects.
+        let mut wire = [0u8; 32];
+        wire[0] = 0; // flags
+        wire[1] = 8; // coll_len = 8
+        wire[2..10].copy_from_slice(b"mark\0ers");
+        wire[10] = 0; // doc_id_len lo
+        wire[11] = 0; // doc_id_len hi
+                      // timestamp 12..20
+                      // body_len 20..22
+        assert_eq!(
+            decode(&wire[..22]),
+            Err(MessageError::InvalidUtf8),
+            "decode must reject NUL-bearing collection for symmetry with encode"
+        );
+    }
+
+    /// Randomised round-trip: encode-decode-assert-eq across a wide
+    /// input matrix. Catches the entire class of issues that fixed-
+    /// fixture tests miss — boundary values, character ranges,
+    /// length-prefix arithmetic. Deterministic seed keeps CI stable.
+    #[test]
+    fn fuzzy_roundtrip_random_inputs() {
+        // Tiny LCG — no external dep, deterministic, good enough for
+        // input matrix coverage in a unit test. Seed chosen so all
+        // four field-length axes (small/medium collection, small/large
+        // doc_id, varied body) get exercised.
+        let mut state: u32 = 0xCAFEBABE;
+        let mut next = || {
+            state = state.wrapping_mul(1664525).wrapping_add(1013904223);
+            state
+        };
+
+        for _ in 0..200 {
+            let coll_choices = ["m", "markers", "platforms", "alerts", "company_summaries"];
+            let coll = coll_choices[(next() as usize) % coll_choices.len()];
+
+            // doc_id: 0..256 ASCII bytes (UTF-8-clean by construction)
+            let id_len = (next() as usize) % 257;
+            let mut id = String::with_capacity(id_len);
+            for _ in 0..id_len {
+                id.push(char::from(0x21 + ((next() & 0x3F) as u8))); // '!'..'`'
+            }
+
+            let body_len = (next() as usize) % 1024;
+            let mut body = vec![0u8; body_len];
+            for byte in body.iter_mut() {
+                *byte = next() as u8;
+            }
+
+            let ts = next() as i64;
+            let needed = encoded_len(coll.len(), id.len(), body.len()).expect("no overflow");
+            let mut buf = vec![0u8; needed];
+            let n = encode(0, coll, &id, ts, &body, &mut buf).expect("encode random input");
+            assert_eq!(n, needed);
+
+            let view = decode(&buf).expect("decode random input");
+            assert_eq!(view.collection, coll);
+            assert_eq!(view.doc_id, id);
+            assert_eq!(view.timestamp_ms, ts);
+            assert_eq!(view.body, body.as_slice());
+        }
     }
 }
